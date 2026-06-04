@@ -5,11 +5,9 @@ import { ArrowDownRight, ArrowLeft, ArrowRight, CircleDot, Menu, Plus, Sparkle }
 import Image from "next/image";
 import { useRef } from "react";
 import { CharacterSkeletonReveal } from "@/components/portfolio/interactions/CharacterSkeletonReveal";
-import { MechanicalInspectionLens } from "@/components/portfolio/interactions/MechanicalInspectionLens";
 import { MagneticCTA } from "@/components/portfolio/interactions/MagneticCTA";
 import { useMechanicalPreviewMotion } from "@/components/portfolio/interactions/MechanicalPreviewMotion";
 import { useFinePointer } from "@/hooks/useFinePointer";
-import { useHeroPointerParallax } from "@/hooks/useHeroPointerParallax";
 import { useReducedMotionPreference } from "@/hooks/useReducedMotionPreference";
 
 const fadeUp = {
@@ -24,7 +22,6 @@ export default function Home() {
   const prefersReducedMotion = useReducedMotionPreference();
   const interactionEnabled = hasFinePointer && !prefersReducedMotion;
 
-  useHeroPointerParallax(heroPanelRef, { enabled: interactionEnabled });
   useMechanicalPreviewMotion({
     rootRef: dossierRef,
     enabled: interactionEnabled,
@@ -60,8 +57,6 @@ export default function Home() {
         <section className="center-column hero-shell" ref={heroPanelRef}>
           <div
             className="oversized-mark"
-            data-depth-x="10"
-            data-depth-y="6"
             aria-hidden="true"
           >
             SYSTEMS
@@ -70,19 +65,10 @@ export default function Home() {
             ALDREN KENT CIRUNAY
           </motion.div>
 
-          <MechanicalInspectionLens
-            rootRef={heroPanelRef}
-            enabled={interactionEnabled}
-          />
-
           <motion.div
             className="portrait-placeholder"
             variants={fadeUp}
             transition={{ type: "spring", stiffness: 180, damping: 22 }}
-            data-depth-x="18"
-            data-depth-y="12"
-            data-rotate-x="1.4"
-            data-rotate-y="2.2"
           >
             <CharacterSkeletonReveal enabled={interactionEnabled} />
           </motion.div>
@@ -90,8 +76,6 @@ export default function Home() {
           <motion.div
             className="hero-copy"
             variants={fadeUp}
-            data-depth-x="5"
-            data-depth-y="3"
           >
             <p className="kicker">ALDREN KENT CIRUNAY</p>
             <h1>
@@ -109,8 +93,6 @@ export default function Home() {
           <motion.div
             className="detail-orbit-wrap"
             variants={fadeUp}
-            data-depth-x="24"
-            data-depth-y="18"
           >
             <MagneticCTA
               className="detail-orbit"

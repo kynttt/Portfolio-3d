@@ -21,16 +21,49 @@ try {
   await page.mouse.move(center.x + center.width * 0.67, center.y + center.height * 0.34);
   await page.waitForTimeout(650);
 
-  const lensOpacity = await page.locator(".inspection-lens").evaluate((element) => {
-    return Number(window.getComputedStyle(element).opacity);
-  });
-
-  if (lensOpacity < 0.45) {
-    throw new Error(`Inspection lens did not activate. Opacity: ${lensOpacity}`);
+  const inspectionLensCount = await page.locator(".inspection-lens").count();
+  if (inspectionLensCount !== 0) {
+    throw new Error("Inspection lens hover effect is still rendered");
   }
 
+  const assertNoHeroParallax = async (label) => {
+    const transforms = await page.evaluate(() => {
+      const selectors = [".portrait-placeholder", ".hero-copy", ".detail-orbit-wrap"];
+
+      return selectors.map((selector) => {
+        const element = document.querySelector(selector);
+        return {
+          selector,
+          transform: element ? window.getComputedStyle(element).transform : null,
+        };
+      });
+    });
+
+    const activeTransforms = transforms.filter(({ transform }) => {
+      return transform && transform !== "none";
+    });
+
+    if (activeTransforms.length > 0) {
+      throw new Error(
+        `${label}: hero-wide parallax transform is still active: ${JSON.stringify(
+          activeTransforms,
+        )}`,
+      );
+    }
+  };
+
+  await assertNoHeroParallax("Initial center hover");
+
+  await page.evaluate(() => window.scrollTo(0, document.body.scrollHeight));
+  await page.waitForTimeout(600);
+  await page.evaluate(() => window.scrollTo(0, 0));
+  await page.waitForTimeout(600);
+  await page.mouse.move(center.x + center.width * 0.72, center.y + center.height * 0.38);
+  await page.waitForTimeout(450);
+  await assertNoHeroParallax("Returned center hover");
+
   await page.screenshot({
-    path: `${outDir}/hero-lens-active.png`,
+    path: `${outDir}/hero-no-inspection-lens.png`,
     fullPage: false,
   });
 
@@ -76,7 +109,7 @@ try {
     fullPage: false,
   });
 
-  console.log("Interaction verification passed. Active lens screenshot written to artifacts/.");
+  console.log("Interaction verification passed. Screenshots written to artifacts/.");
   await page.close();
 } finally {
   await browser.close();
