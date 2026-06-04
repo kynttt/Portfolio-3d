@@ -8,7 +8,8 @@
     "lint": "next lint",
     "verify:hero": "node scripts/verify-hero.mjs",
     "verify:visual": "node scripts/verify-visual.mjs",
-    "verify:interactions": "node scripts/verify-interactions.mjs"
+    "verify:interactions": "node scripts/verify-interactions.mjs",
+    "verify:origin": "node scripts/verify-origin.mjs"
   },
   "dependencies": {
     "@gsap/react": "^2.1.2",

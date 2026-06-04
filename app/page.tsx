@@ -2,22 +2,28 @@
 
 import { motion } from "framer-motion";
 import { ArrowDownRight, ArrowLeft, ArrowRight, CircleDot, Menu, Plus, Sparkle } from "lucide-react";
-import Image from "next/image";
 import { useRef } from "react";
 import { CharacterSkeletonReveal } from "@/components/portfolio/interactions/CharacterSkeletonReveal";
+import { HeroScrollSequence } from "@/components/portfolio/interactions/HeroScrollSequence";
 import { MagneticCTA } from "@/components/portfolio/interactions/MagneticCTA";
 import { useMechanicalPreviewMotion } from "@/components/portfolio/interactions/MechanicalPreviewMotion";
+import { MechanicalLoopTransition } from "@/components/portfolio/origin/MechanicalLoopTransition";
+import { OriginSection } from "@/components/portfolio/origin/OriginSection";
 import { useFinePointer } from "@/hooks/useFinePointer";
 import { useReducedMotionPreference } from "@/hooks/useReducedMotionPreference";
+import { useSystemsRollingText } from "@/hooks/useSystemsRollingText";
 
 const fadeUp = {
   hidden: { opacity: 0, y: 18 },
   visible: { opacity: 1, y: 0 },
 };
 
+const oversizedMark = "SYSTEMS".split("");
+
 export default function Home() {
   const heroPanelRef = useRef<HTMLElement | null>(null);
   const dossierRef = useRef<HTMLElement | null>(null);
+  const systemsMarkRef = useRef<HTMLDivElement | null>(null);
   const hasFinePointer = useFinePointer();
   const prefersReducedMotion = useReducedMotionPreference();
   const interactionEnabled = hasFinePointer && !prefersReducedMotion;
@@ -25,6 +31,10 @@ export default function Home() {
   useMechanicalPreviewMotion({
     rootRef: dossierRef,
     enabled: interactionEnabled,
+  });
+  useSystemsRollingText(systemsMarkRef, {
+    enabled: true,
+    reducedMotion: prefersReducedMotion,
   });
 
   return (
@@ -57,9 +67,14 @@ export default function Home() {
         <section className="center-column hero-shell" ref={heroPanelRef}>
           <div
             className="oversized-mark"
+            ref={systemsMarkRef}
             aria-hidden="true"
           >
-            SYSTEMS
+            {oversizedMark.map((letter, index) => (
+              <span className="systems-roll-char" key={`${letter}-${index}`}>
+                {letter}
+              </span>
+            ))}
           </div>
           <motion.div className="monogram" variants={fadeUp}>
             ALDREN KENT CIRUNAY
@@ -110,12 +125,9 @@ export default function Home() {
         </section>
 
         <motion.aside className="dossier-panel" variants={fadeUp} ref={dossierRef}>
-          <Image
+          <HeroScrollSequence
             className="technical-object"
-            src="/assets/hero-back.png"
-            alt="Rear profile mechanical portrait"
-            width={1086}
-            height={1448}
+            enabled={!prefersReducedMotion}
           />
           <div className="arrow-row" aria-hidden="true">
             <ArrowLeft size={28} strokeWidth={1.3} />
@@ -167,6 +179,9 @@ export default function Home() {
           </div>
         </motion.footer>
       </motion.section>
+
+      <MechanicalLoopTransition />
+      <OriginSection />
     </main>
   );
 }

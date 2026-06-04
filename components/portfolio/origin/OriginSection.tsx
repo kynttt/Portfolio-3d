@@ -1,0 +1,64 @@
+"use client";
+
+import { useRef } from "react";
+import { CareerMarker } from "@/components/portfolio/origin/CareerMarker";
+import { MechanicalAssembly } from "@/components/portfolio/origin/MechanicalAssembly";
+import { OriginMetadata } from "@/components/portfolio/origin/OriginMetadata";
+import { careerMarkers, originCopy } from "@/data/origin-content";
+import { useOriginAssemblyTimeline } from "@/hooks/useOriginAssemblyTimeline";
+import { useReducedMotionPreference } from "@/hooks/useReducedMotionPreference";
+
+export function OriginSection() {
+  const rootRef = useRef<HTMLElement | null>(null);
+  const prefersReducedMotion = useReducedMotionPreference();
+
+  useOriginAssemblyTimeline(rootRef, {
+    enabled: true,
+    reducedMotion: prefersReducedMotion,
+  });
+
+  return (
+    <section
+      className="origin-section"
+      id="origin"
+      ref={rootRef}
+      aria-labelledby="origin-heading"
+    >
+      <div className="origin-pin">
+        <div className="origin-grid">
+          <div className="origin-copy-panel">
+            <p className="origin-eyebrow">{originCopy.eyebrow}</p>
+            <h2 className="origin-heading" id="origin-heading">
+              {originCopy.title.split("\n").map((line) => (
+                <span key={line}>{line}</span>
+              ))}
+            </h2>
+            <div className="origin-body">
+              <p>{originCopy.supporting}</p>
+              <p>{originCopy.secondary}</p>
+            </div>
+            <p className="origin-instruction">{originCopy.instruction}</p>
+          </div>
+
+          <div className="origin-assembly-panel">
+            <MechanicalAssembly />
+            <div className="origin-final-statement">
+              {originCopy.finalStatement.split("\n").map((line) => (
+                <span key={line}>{line}</span>
+              ))}
+            </div>
+          </div>
+
+          <div className="origin-side-panel">
+            <OriginMetadata />
+            <div className="origin-marker-stack">
+              {careerMarkers.map((marker) => (
+                <CareerMarker key={marker.id} marker={marker} />
+              ))}
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}

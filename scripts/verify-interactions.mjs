@@ -35,12 +35,18 @@ try {
         return {
           selector,
           transform: element ? window.getComputedStyle(element).transform : null,
+          style: element?.getAttribute("style") ?? "",
         };
       });
     });
 
-    const activeTransforms = transforms.filter(({ transform }) => {
-      return transform && transform !== "none";
+    const activeTransforms = transforms.filter(({ transform, style }) => {
+      return (
+        transform?.startsWith("matrix3d") ||
+        style.includes("perspective(") ||
+        style.includes("rotateX") ||
+        style.includes("rotateY")
+      );
     });
 
     if (activeTransforms.length > 0) {
@@ -95,6 +101,25 @@ try {
 
   await page.mouse.move(portrait.x + portrait.width * 0.46, portrait.y + portrait.height * 0.28);
   await page.waitForTimeout(550);
+
+  const portraitTransformState = await page.locator(".character-reveal").evaluate((element) => {
+    const style = window.getComputedStyle(element);
+    return {
+      transform: style.transform,
+      inlineStyle: element.getAttribute("style") ?? "",
+    };
+  });
+
+  if (
+    portraitTransformState.transform !== "none" ||
+    portraitTransformState.inlineStyle.includes("perspective(") ||
+    portraitTransformState.inlineStyle.includes("rotateX") ||
+    portraitTransformState.inlineStyle.includes("rotateY")
+  ) {
+    throw new Error(
+      `Hero portrait tilt is still active: ${JSON.stringify(portraitTransformState)}`,
+    );
+  }
 
   const skeletonOpacity = await page.locator(".character-skeleton-image").evaluate((element) => {
     return Number(window.getComputedStyle(element).opacity);
