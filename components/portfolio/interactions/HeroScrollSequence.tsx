@@ -54,7 +54,7 @@ export function HeroScrollSequence({
   useGSAP(
     () => {
       const canvas = canvasRef.current;
-      const transition = document.querySelector<HTMLElement>(".mechanical-loop-transition");
+      const transition = document.querySelector<HTMLElement>(".origin-section");
 
       if (!canvas) {
         return;

@@ -1,11 +1,3 @@
-export type TransitionPanel = {
-  id: string;
-  title: string;
-  assembly: string;
-  labels: string[];
-  variant: "casing" | "transmission" | "bearing" | "control";
-};
-
 export type CareerMarker = {
   id: string;
   label: string;
@@ -15,7 +7,6 @@ export type CareerMarker = {
 };
 
 export const originCopy = {
-  transitionTitle: "ENTER THE SYSTEM",
   eyebrow: "02 / ORIGIN",
   title: "BEFORE I BUILT\nDIGITAL SYSTEMS,\nI WORKED INSIDE\nMECHANICAL ONES.",
   supporting:
@@ -26,41 +17,8 @@ export const originCopy = {
   metadata: {
     system: "SYSTEM / 02",
     chapter: "MECHANICAL ORIGIN",
-    entry: "SYSTEM ENTRY",
-    disengaged: "SURFACE LAYER / DISENGAGED",
   },
 };
-
-export const transitionPanels: TransitionPanel[] = [
-  {
-    id: "outer-casing",
-    title: "OUTER CASING",
-    assembly: "ASSEMBLY / 01",
-    labels: ["SURFACE LAYER", "LOAD PATH / A", "SYSTEM ENTRY"],
-    variant: "casing",
-  },
-  {
-    id: "transmission",
-    title: "TRANSMISSION",
-    assembly: "ASSEMBLY / 02",
-    labels: ["TORQUE TRANSFER", "GEAR RATIO / 06", "ROTATIONAL AXIS"],
-    variant: "transmission",
-  },
-  {
-    id: "bearing-system",
-    title: "BEARING SYSTEM",
-    assembly: "ASSEMBLY / 03",
-    labels: ["BEARING ALIGNMENT", "AXIAL LOAD", "RADIAL SUPPORT"],
-    variant: "bearing",
-  },
-  {
-    id: "control-layer",
-    title: "CONTROL LAYER",
-    assembly: "ASSEMBLY / 04",
-    labels: ["SIGNAL ROUTE", "OPERATIONAL LOGIC", "DATA OUTPUT"],
-    variant: "control",
-  },
-];
 
 export const careerMarkers: CareerMarker[] = [
   {

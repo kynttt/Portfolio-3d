@@ -18,7 +18,7 @@ export function useSystemsRollingText(
   useGSAP(
     () => {
       const root = rootRef.current;
-      const transition = document.querySelector<HTMLElement>(".mechanical-loop-transition");
+      const transition = document.querySelector<HTMLElement>(".origin-section");
 
       if (!root || !transition || !enabled || reducedMotion) {
         return;

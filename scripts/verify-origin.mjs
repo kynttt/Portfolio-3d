@@ -28,8 +28,8 @@ try {
     };
     });
 
-    if (!initial.hasTransition || !initial.hasOrigin) {
-      throw new Error(`${name}: missing Origin transition or section`);
+    if (initial.hasTransition || !initial.hasOrigin) {
+      throw new Error(`${name}: unexpected loop transition state or missing Origin section`);
     }
 
     if (initial.scrollWidth > initial.clientWidth + 1) {
@@ -51,13 +51,13 @@ try {
 
     const coverState = await page.evaluate(() => {
       const hero = document.querySelector(".hero-frame")?.getBoundingClientRect();
-      const loop = document
-        .querySelector(".mechanical-loop-transition")
+      const origin = document
+        .querySelector(".origin-section")
         ?.getBoundingClientRect();
 
       return {
         heroTop: hero?.top,
-        loopTop: loop?.top,
+        originTop: origin?.top,
         viewportHeight: window.innerHeight,
       };
     });
@@ -65,13 +65,13 @@ try {
     if (
       name === "desktop" &&
       (coverState.heroTop === undefined ||
-        coverState.loopTop === undefined ||
+        coverState.originTop === undefined ||
         Math.abs(coverState.heroTop) > 48 ||
-        coverState.loopTop <= 0 ||
-        coverState.loopTop >= coverState.viewportHeight)
+        coverState.originTop <= 0 ||
+        coverState.originTop >= coverState.viewportHeight)
     ) {
       throw new Error(
-        `${name}: transition is not covering a sticky hero: ${JSON.stringify(coverState)}`,
+        `${name}: Origin is not directly covering a sticky hero: ${JSON.stringify(coverState)}`,
       );
     }
 
@@ -127,6 +127,14 @@ try {
     const progressed = await page.locator(".assembly-progress-value").first().innerText();
     if (name === "desktop" && progressed === "00%") {
       throw new Error(`${name}: Origin assembly progress did not advance`);
+    }
+
+    const originClockFrame = await page.locator(".origin-clock-sequence").evaluate((element) => {
+      return Number(element.dataset.frame ?? "0");
+    });
+
+    if (name === "desktop" && originClockFrame <= 0) {
+      throw new Error(`${name}: Origin clock sequence did not advance on scroll`);
     }
 
     await page.screenshot({

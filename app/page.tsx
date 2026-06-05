@@ -7,7 +7,6 @@ import { CharacterSkeletonReveal } from "@/components/portfolio/interactions/Cha
 import { HeroScrollSequence } from "@/components/portfolio/interactions/HeroScrollSequence";
 import { MagneticCTA } from "@/components/portfolio/interactions/MagneticCTA";
 import { useMechanicalPreviewMotion } from "@/components/portfolio/interactions/MechanicalPreviewMotion";
-import { MechanicalLoopTransition } from "@/components/portfolio/origin/MechanicalLoopTransition";
 import { OriginSection } from "@/components/portfolio/origin/OriginSection";
 import { useFinePointer } from "@/hooks/useFinePointer";
 import { useReducedMotionPreference } from "@/hooks/useReducedMotionPreference";
@@ -180,7 +179,6 @@ export default function Home() {
         </motion.footer>
       </motion.section>
 
-      <MechanicalLoopTransition />
       <OriginSection />
     </main>
   );

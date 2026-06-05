@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef } from "react";
+import { Fragment, useRef } from "react";
 import { CareerMarker } from "@/components/portfolio/origin/CareerMarker";
 import { MechanicalAssembly } from "@/components/portfolio/origin/MechanicalAssembly";
 import { OriginMetadata } from "@/components/portfolio/origin/OriginMetadata";
@@ -44,7 +44,17 @@ export function OriginSection() {
             <MechanicalAssembly />
             <div className="origin-final-statement">
               {originCopy.finalStatement.split("\n").map((line) => (
-                <span key={line}>{line}</span>
+                <Fragment key={line}>
+                  <span className="origin-final-line">
+                    {line.split(" ").map((word, index, words) => (
+                      <span className="origin-final-word" key={`${line}-${word}-${index}`}>
+                        {word}
+                        {index < words.length - 1 ? " " : ""}
+                      </span>
+                    ))}
+                  </span>
+                  {"\n"}
+                </Fragment>
               ))}
             </div>
           </div>
