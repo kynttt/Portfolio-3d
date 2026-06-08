@@ -124,6 +124,18 @@ try {
       throw new Error(`${name}: closing statement is missing`);
     }
 
+    const hasEndScene = await page.evaluate(() => {
+      return Boolean(
+        document.querySelector(".origin-exit-stage") &&
+          document.querySelector(".origin-topo-field") &&
+          !document.querySelector(".origin-exit-slab"),
+      );
+    });
+
+    if (!hasEndScene) {
+      throw new Error(`${name}: Origin zoom-out end scene is missing or still uses a custom slab`);
+    }
+
     const progressed = await page.locator(".assembly-progress-value").first().innerText();
     if (name === "desktop" && progressed === "00%") {
       throw new Error(`${name}: Origin assembly progress did not advance`);
@@ -135,6 +147,53 @@ try {
 
     if (name === "desktop" && originClockFrame <= 0) {
       throw new Error(`${name}: Origin clock sequence did not advance on scroll`);
+    }
+
+    if (name === "desktop") {
+      await page.evaluate(() => {
+        const origin = document.querySelector(".origin-section");
+        if (origin) {
+          window.scrollTo(
+            0,
+            origin.getBoundingClientRect().top + window.scrollY + window.innerHeight * 4.2,
+          );
+        }
+      });
+      await page.waitForTimeout(1000);
+
+      const endSceneState = await page.evaluate(() => {
+        const stage = document.querySelector(".origin-exit-stage");
+        const grid = document.querySelector(".origin-grid");
+        const gridRect = grid?.getBoundingClientRect();
+        const stageStyle = stage ? window.getComputedStyle(stage) : null;
+        const gridStyle = grid ? window.getComputedStyle(grid) : null;
+        const progressText = document.querySelector(".assembly-progress-value")?.textContent ?? "";
+
+        return {
+          stageOpacity: stageStyle ? Number(stageStyle.opacity) : 0,
+          gridOpacity: gridStyle ? Number(gridStyle.opacity) : 0,
+          gridTransform: gridStyle?.transform ?? "none",
+          gridWidth: gridRect?.width ?? 0,
+          gridHeight: gridRect?.height ?? 0,
+          centerDelta: gridRect
+            ? Math.abs(gridRect.left + gridRect.width / 2 - window.innerWidth / 2)
+            : 9999,
+          progressText,
+        };
+      });
+
+      if (
+        endSceneState.stageOpacity < 0.55 ||
+        endSceneState.gridOpacity < 0.75 ||
+        endSceneState.gridTransform === "none" ||
+        endSceneState.gridWidth >= 1280 ||
+        endSceneState.gridWidth < 620 ||
+        endSceneState.gridHeight < 430 ||
+        endSceneState.centerDelta > 80 ||
+        endSceneState.progressText !== "100%"
+      ) {
+        throw new Error(`${name}: Origin end scene is not centered/readable: ${JSON.stringify(endSceneState)}`);
+      }
     }
 
     await page.screenshot({

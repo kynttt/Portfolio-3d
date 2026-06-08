@@ -3,6 +3,7 @@
 import { Fragment, useRef } from "react";
 import { CareerMarker } from "@/components/portfolio/origin/CareerMarker";
 import { MechanicalAssembly } from "@/components/portfolio/origin/MechanicalAssembly";
+import { OriginEndScene } from "@/components/portfolio/origin/OriginEndScene";
 import { OriginMetadata } from "@/components/portfolio/origin/OriginMetadata";
 import { careerMarkers, originCopy } from "@/data/origin-content";
 import { useOriginAssemblyTimeline } from "@/hooks/useOriginAssemblyTimeline";
@@ -68,6 +69,7 @@ export function OriginSection() {
             </div>
           </div>
         </div>
+        <OriginEndScene />
       </div>
     </section>
   );

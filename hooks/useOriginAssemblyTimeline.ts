@@ -6,6 +6,7 @@ import { registerGsap } from "@/lib/gsap/registerGsap";
 
 const CLOCK_FRAME_COUNT = 96;
 const CLOCK_FRAME_SIZE = 960;
+const ORIGIN_END_SCENE_TIME = 6.65;
 
 type OriginTimelineOptions = {
   enabled?: boolean;
@@ -182,22 +183,38 @@ export function useOriginAssemblyTimeline(
         x: -28,
         y: 18,
       });
+      gsap.set(root.querySelectorAll(".origin-exit-stage"), {
+        autoAlpha: 0,
+      });
+      gsap.set(root.querySelectorAll(".origin-topo-field"), {
+        "--origin-topo-alpha": 0,
+        "--origin-topo-scale": 1.12,
+        "--origin-topo-y": "34px",
+      });
+      gsap.set(root.querySelectorAll(".origin-exit-caption"), {
+        autoAlpha: 0,
+        y: 18,
+      });
 
       const timeline = gsap.timeline({
         defaults: { ease: "power2.out" },
         scrollTrigger: {
           trigger: root,
           start: "top top",
-          end: () => (window.innerWidth >= 1180 ? "+=380%" : "+=290%"),
+          end: () => (window.innerWidth >= 1180 ? "+=500%" : "+=350%"),
           pin,
           scrub: 1,
           anticipatePin: 1,
           invalidateOnRefresh: true,
           onUpdate: (self) => {
-            root.style.setProperty("--assembly-progress", self.progress.toFixed(3));
-            renderClockFrame(self.progress);
+            const assemblyProgress = Math.min(
+              1,
+              self.progress / (ORIGIN_END_SCENE_TIME / (self.animation?.duration() || ORIGIN_END_SCENE_TIME)),
+            );
+            root.style.setProperty("--assembly-progress", assemblyProgress.toFixed(3));
+            renderClockFrame(assemblyProgress);
             if (progressLabel) {
-              progressLabel.textContent = `${Math.round(self.progress * 100)
+              progressLabel.textContent = `${Math.round(assemblyProgress * 100)
                 .toString()
                 .padStart(2, "0")}%`;
             }
@@ -260,7 +277,46 @@ export function useOriginAssemblyTimeline(
           },
           "origin-exit+=0.16",
         )
-        .to(root.querySelectorAll(".origin-instruction"), { autoAlpha: 0, y: -10, duration: 0.45 }, "origin-exit");
+        .to(root.querySelectorAll(".origin-instruction"), { autoAlpha: 0, y: -10, duration: 0.45 }, "origin-exit")
+        .addLabel("origin-end-scene", ORIGIN_END_SCENE_TIME)
+        .to(
+          root.querySelectorAll(".origin-exit-stage"),
+          {
+            autoAlpha: 1,
+            duration: 0.32,
+          },
+          "origin-end-scene",
+        )
+        .to(
+          root.querySelectorAll(".origin-grid"),
+          {
+            autoAlpha: 1,
+            scale: 0.66,
+            y: 0,
+            boxShadow: "0 44px 130px rgba(16, 16, 16, 0.24)",
+            transformOrigin: "50% 50%",
+            duration: 1.18,
+            ease: "power3.inOut",
+          },
+          "origin-end-scene+=0.02",
+        )
+        .to(
+          root.querySelectorAll(".origin-topo-field"),
+          {
+            "--origin-topo-alpha": 1,
+            "--origin-topo-scale": 1,
+            "--origin-topo-y": "0px",
+            duration: 1.18,
+            ease: "none",
+          },
+          "origin-end-scene+=0.08",
+        )
+        .to(
+          root.querySelectorAll(".origin-exit-caption"),
+          { autoAlpha: 1, y: 0, duration: 0.55 },
+          "origin-end-scene+=0.82",
+        )
+        .to({}, { duration: 0.62 });
 
       const onResize = () => renderClockFrame(Number(root.style.getPropertyValue("--assembly-progress")) || 0);
       window.addEventListener("resize", onResize);

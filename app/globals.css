@@ -892,6 +892,115 @@ button {
   line-height: 1.36;
 }
 
+.origin-exit-stage {
+  --origin-topo-alpha: 0;
+  --origin-topo-scale: 1.08;
+  --origin-topo-y: 28px;
+  position: absolute;
+  z-index: 1;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+  padding: clamp(28px, 5vw, 74px);
+  background:
+    radial-gradient(circle at 50% 42%, rgba(244, 242, 236, 0.18), transparent 31%),
+    linear-gradient(180deg, rgba(244, 242, 236, 0.12), rgba(16, 16, 16, 0.06)),
+    rgba(232, 230, 224, 0.82);
+  opacity: 0;
+  perspective: 1200px;
+  pointer-events: none;
+}
+
+.origin-topo-field {
+  position: absolute;
+  inset: -18%;
+  opacity: var(--origin-topo-alpha);
+  transform: translateY(var(--origin-topo-y)) scale(var(--origin-topo-scale));
+  transform-origin: center;
+}
+
+.origin-topo-field::before,
+.origin-topo-field::after,
+.origin-topo-rings,
+.origin-topo-scan {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.origin-topo-field::before {
+  background:
+    repeating-radial-gradient(
+      ellipse at 50% 48%,
+      transparent 0 28px,
+      rgba(16, 16, 16, 0.18) 29px 30px,
+      transparent 31px 58px
+    ),
+    repeating-radial-gradient(
+      ellipse at 48% 52%,
+      transparent 0 72px,
+      rgba(16, 16, 16, 0.08) 73px 74px,
+      transparent 75px 138px
+    );
+  mask-image: radial-gradient(ellipse at center, black 0 54%, transparent 75%);
+}
+
+.origin-topo-field::after {
+  background:
+    linear-gradient(rgba(16, 16, 16, 0.05) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(16, 16, 16, 0.05) 1px, transparent 1px);
+  background-size: 96px 96px;
+  mask-image: radial-gradient(circle at center, black 0 50%, transparent 76%);
+}
+
+.origin-topo-rings {
+  border: 1px solid rgba(16, 16, 16, 0.18);
+  border-radius: 50%;
+  inset: 18% 23%;
+  box-shadow:
+    0 0 0 58px rgba(16, 16, 16, 0.025),
+    0 0 0 118px rgba(16, 16, 16, 0.02),
+    0 0 0 202px rgba(16, 16, 16, 0.018);
+}
+
+.origin-topo-scan {
+  height: 1px;
+  top: 50%;
+  background: linear-gradient(90deg, transparent, rgba(16, 16, 16, 0.42), transparent);
+  transform-origin: center;
+}
+
+.origin-topo-scan-a {
+  transform: rotate(24deg);
+}
+
+.origin-topo-scan-b {
+  transform: rotate(-31deg);
+  opacity: 0.58;
+}
+
+.origin-exit-caption {
+  color: rgba(16, 16, 16, 0.58);
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0;
+  text-transform: uppercase;
+}
+
+.origin-exit-caption {
+  position: absolute;
+  z-index: 3;
+  left: clamp(28px, 4vw, 64px);
+  right: clamp(28px, 4vw, 64px);
+  bottom: clamp(24px, 4vh, 52px);
+  display: flex;
+  justify-content: space-between;
+  gap: 18px;
+  opacity: 0;
+}
+
 @media (max-width: 1180px) {
   .hero-frame {
     grid-template-columns: 72px minmax(0, 1fr);
@@ -954,6 +1063,7 @@ button {
   .mechanical-assembly {
     width: min(100%, 560px);
   }
+
 }
 
 @media (max-width: 820px) {
@@ -1103,6 +1213,27 @@ button {
     transform: none !important;
   }
 
+  .origin-exit-stage {
+    position: relative;
+    min-height: 720px;
+    opacity: 1;
+    padding: 52px 24px 74px;
+  }
+
+  .origin-topo-field {
+    --origin-topo-alpha: 1;
+    --origin-topo-scale: 1;
+    --origin-topo-y: 0px;
+  }
+
+  .origin-exit-caption {
+    left: 24px;
+    right: 24px;
+    bottom: 24px;
+    display: grid;
+    opacity: 1;
+  }
+
   .metric-block,
   .statement-block {
     border-right: 0;
@@ -1137,6 +1268,8 @@ button {
 @media (prefers-reduced-motion: reduce) {
   .origin-marker,
   .origin-final-statement,
+  .origin-exit-stage,
+  .origin-exit-caption,
   .origin-eyebrow,
   .origin-heading,
   .origin-body,
@@ -1144,5 +1277,16 @@ button {
     opacity: 1 !important;
     visibility: visible !important;
     transform: none !important;
+  }
+
+  .origin-exit-stage {
+    position: relative;
+    min-height: 720px;
+  }
+
+  .origin-topo-field {
+    --origin-topo-alpha: 1 !important;
+    --origin-topo-scale: 1 !important;
+    --origin-topo-y: 0px !important;
   }
 }
