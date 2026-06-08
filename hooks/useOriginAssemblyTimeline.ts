@@ -7,6 +7,10 @@ import { registerGsap } from "@/lib/gsap/registerGsap";
 const CLOCK_FRAME_COUNT = 96;
 const CLOCK_FRAME_SIZE = 960;
 const ORIGIN_END_SCENE_TIME = 6.65;
+const END_SCENE_BASE_ROTATION_X = 58;
+const END_SCENE_BASE_ROTATION_Z = -9;
+const END_SCENE_GRID_SCALE = 0.54;
+const END_SCENE_TOPO_SCALE = 0.92;
 
 type OriginTimelineOptions = {
   enabled?: boolean;
@@ -97,9 +101,11 @@ export function useOriginAssemblyTimeline(
       const pin = root.querySelector<HTMLElement>(".origin-pin");
       const progressLabel = root.querySelector<HTMLElement>(".assembly-progress-value");
       const clockCanvas = root.querySelector<HTMLCanvasElement>(".origin-clock-sequence");
+      const originGrid = root.querySelector<HTMLElement>(".origin-grid");
+      const topoField = root.querySelector<HTMLElement>(".origin-topo-field");
       const hero = document.querySelector<HTMLElement>(".hero-frame");
 
-      if (!pin) {
+      if (!pin || !originGrid || !topoField) {
         return;
       }
 
@@ -188,8 +194,13 @@ export function useOriginAssemblyTimeline(
       });
       gsap.set(root.querySelectorAll(".origin-topo-field"), {
         "--origin-topo-alpha": 0,
-        "--origin-topo-scale": 1.12,
-        "--origin-topo-y": "34px",
+        rotationX: END_SCENE_BASE_ROTATION_X,
+        rotationY: 0,
+        rotationZ: END_SCENE_BASE_ROTATION_Z,
+        scale: END_SCENE_TOPO_SCALE,
+        y: 6,
+        transformPerspective: 1500,
+        transformOrigin: "50% 50%",
       });
       gsap.set(root.querySelectorAll(".origin-exit-caption"), {
         autoAlpha: 0,
@@ -218,6 +229,13 @@ export function useOriginAssemblyTimeline(
                 .toString()
                 .padStart(2, "0")}%`;
             }
+            root.dataset.endSceneActive =
+              self.progress >= ORIGIN_END_SCENE_TIME / (self.animation?.duration() || ORIGIN_END_SCENE_TIME)
+                ? "true"
+                : "false";
+            if (root.dataset.endSceneActive !== "true") {
+              resetSharedPlaneToRest();
+            }
           },
         },
       });
@@ -225,6 +243,78 @@ export function useOriginAssemblyTimeline(
       const [markerOne, markerTwo, markerThree] = gsap.utils.toArray<HTMLElement>(
         root.querySelectorAll(".origin-marker"),
       );
+      const gridRotationXTo = gsap.quickTo(originGrid, "rotationX", {
+        duration: 0.45,
+        ease: "power3.out",
+      });
+      const gridRotationZTo = gsap.quickTo(originGrid, "rotationZ", {
+        duration: 0.45,
+        ease: "power3.out",
+      });
+      const gridXTo = gsap.quickTo(originGrid, "x", {
+        duration: 0.45,
+        ease: "power3.out",
+      });
+      const gridYTo = gsap.quickTo(originGrid, "y", {
+        duration: 0.45,
+        ease: "power3.out",
+      });
+      const topoRotationXTo = gsap.quickTo(topoField, "rotationX", {
+        duration: 0.45,
+        ease: "power3.out",
+      });
+      const topoRotationZTo = gsap.quickTo(topoField, "rotationZ", {
+        duration: 0.45,
+        ease: "power3.out",
+      });
+      const topoXTo = gsap.quickTo(topoField, "x", {
+        duration: 0.45,
+        ease: "power3.out",
+      });
+      const topoYTo = gsap.quickTo(topoField, "y", {
+        duration: 0.45,
+        ease: "power3.out",
+      });
+
+      const resetSharedPlaneToEndPose = () => {
+        gridRotationXTo(END_SCENE_BASE_ROTATION_X);
+        gridRotationZTo(END_SCENE_BASE_ROTATION_Z);
+        gridXTo(0);
+        gridYTo(-8);
+        topoRotationXTo(END_SCENE_BASE_ROTATION_X);
+        topoRotationZTo(END_SCENE_BASE_ROTATION_Z);
+        topoXTo(0);
+        topoYTo(6);
+      };
+
+      const resetSharedPlaneToRest = () => {
+        gsap.set(originGrid, {
+          boxShadow: "none",
+          clearProps: "rotationX,rotationY,rotationZ,transformPerspective,x,y",
+        });
+        gsap.set(topoField, {
+          clearProps: "rotationX,rotationY,rotationZ,transformPerspective,x,y",
+        });
+      };
+
+      const handlePointerMove = (event: PointerEvent) => {
+        if (root.dataset.endSceneActive !== "true") {
+          return;
+        }
+
+        const normalizedX = (event.clientX / window.innerWidth - 0.5) * 2;
+        const normalizedY = (event.clientY / window.innerHeight - 0.5) * 2;
+
+        gridRotationXTo(END_SCENE_BASE_ROTATION_X - normalizedY * 4);
+        gridRotationZTo(END_SCENE_BASE_ROTATION_Z + normalizedX * 3.5);
+        gridXTo(normalizedX * 14);
+        gridYTo(-8 + normalizedY * 10);
+
+        topoRotationXTo(END_SCENE_BASE_ROTATION_X - normalizedY * 4);
+        topoRotationZTo(END_SCENE_BASE_ROTATION_Z + normalizedX * 3.5);
+        topoXTo(normalizedX * 22);
+        topoYTo(6 + normalizedY * 14);
+      };
 
       timeline
         .addLabel("origin-enter", 0)
@@ -291,9 +381,13 @@ export function useOriginAssemblyTimeline(
           root.querySelectorAll(".origin-grid"),
           {
             autoAlpha: 1,
-            scale: 0.66,
-            y: 0,
-            boxShadow: "0 44px 130px rgba(16, 16, 16, 0.24)",
+            rotationX: END_SCENE_BASE_ROTATION_X,
+            rotationY: 0,
+            rotationZ: END_SCENE_BASE_ROTATION_Z,
+            scale: END_SCENE_GRID_SCALE,
+            y: -8,
+            boxShadow: "0 58px 150px rgba(0, 0, 0, 0.44)",
+            transformPerspective: 1500,
             transformOrigin: "50% 50%",
             duration: 1.18,
             ease: "power3.inOut",
@@ -304,8 +398,12 @@ export function useOriginAssemblyTimeline(
           root.querySelectorAll(".origin-topo-field"),
           {
             "--origin-topo-alpha": 1,
-            "--origin-topo-scale": 1,
-            "--origin-topo-y": "0px",
+            rotationX: END_SCENE_BASE_ROTATION_X,
+            rotationY: 0,
+            rotationZ: END_SCENE_BASE_ROTATION_Z,
+            scale: END_SCENE_TOPO_SCALE,
+            y: 6,
+            transformPerspective: 1500,
             duration: 1.18,
             ease: "none",
           },
@@ -318,10 +416,17 @@ export function useOriginAssemblyTimeline(
         )
         .to({}, { duration: 0.62 });
 
+      root.dataset.endSceneActive = "false";
+      resetSharedPlaneToRest();
+      window.addEventListener("pointermove", handlePointerMove);
+      root.addEventListener("pointerleave", resetSharedPlaneToEndPose);
       const onResize = () => renderClockFrame(Number(root.style.getPropertyValue("--assembly-progress")) || 0);
       window.addEventListener("resize", onResize);
 
       return () => {
+        root.dataset.endSceneActive = "false";
+        window.removeEventListener("pointermove", handlePointerMove);
+        root.removeEventListener("pointerleave", resetSharedPlaneToEndPose);
         window.removeEventListener("resize", onResize);
         heroExit?.scrollTrigger?.kill();
         heroExit?.kill();

@@ -150,12 +150,34 @@ try {
     }
 
     if (name === "desktop") {
+      const midSceneState = await page.evaluate(() => {
+        const grid = document.querySelector(".origin-grid");
+        const topo = document.querySelector(".origin-topo-field");
+        return {
+          gridTransform: grid ? window.getComputedStyle(grid).transform : "none",
+          topoOpacity: topo ? Number(window.getComputedStyle(topo).opacity) : 0,
+          progressText: document.querySelector(".assembly-progress-value")?.textContent ?? "",
+        };
+      });
+
+      if (
+        midSceneState.gridTransform !== "none" ||
+        midSceneState.topoOpacity > 0.05 ||
+        midSceneState.progressText === "100%"
+      ) {
+        throw new Error(
+          `${name}: Origin normal scene is polluted by end-scene transforms: ${JSON.stringify(midSceneState)}`,
+        );
+      }
+    }
+
+    if (name === "desktop") {
       await page.evaluate(() => {
         const origin = document.querySelector(".origin-section");
         if (origin) {
           window.scrollTo(
             0,
-            origin.getBoundingClientRect().top + window.scrollY + window.innerHeight * 4.2,
+            origin.getBoundingClientRect().top + window.scrollY + window.innerHeight * 4.9,
           );
         }
       });
@@ -164,15 +186,20 @@ try {
       const endSceneState = await page.evaluate(() => {
         const stage = document.querySelector(".origin-exit-stage");
         const grid = document.querySelector(".origin-grid");
+        const topo = document.querySelector(".origin-topo-field");
         const gridRect = grid?.getBoundingClientRect();
         const stageStyle = stage ? window.getComputedStyle(stage) : null;
         const gridStyle = grid ? window.getComputedStyle(grid) : null;
+        const topoStyle = topo ? window.getComputedStyle(topo) : null;
         const progressText = document.querySelector(".assembly-progress-value")?.textContent ?? "";
+        const stageBackground = stageStyle?.backgroundColor ?? "";
 
         return {
           stageOpacity: stageStyle ? Number(stageStyle.opacity) : 0,
+          stageBackground,
           gridOpacity: gridStyle ? Number(gridStyle.opacity) : 0,
           gridTransform: gridStyle?.transform ?? "none",
+          topoTransform: topoStyle?.transform ?? "none",
           gridWidth: gridRect?.width ?? 0,
           gridHeight: gridRect?.height ?? 0,
           centerDelta: gridRect
@@ -184,15 +211,51 @@ try {
 
       if (
         endSceneState.stageOpacity < 0.55 ||
+        !endSceneState.stageBackground.includes("14, 14, 14") ||
         endSceneState.gridOpacity < 0.75 ||
-        endSceneState.gridTransform === "none" ||
-        endSceneState.gridWidth >= 1280 ||
+        !endSceneState.gridTransform.startsWith("matrix3d") ||
+        !endSceneState.topoTransform.startsWith("matrix3d") ||
+        endSceneState.gridWidth >= 1260 ||
         endSceneState.gridWidth < 620 ||
-        endSceneState.gridHeight < 430 ||
+        endSceneState.gridHeight < 320 ||
         endSceneState.centerDelta > 80 ||
         endSceneState.progressText !== "100%"
       ) {
         throw new Error(`${name}: Origin end scene is not centered/readable: ${JSON.stringify(endSceneState)}`);
+      }
+
+      await page.mouse.move(width / 2, height / 2);
+      await page.waitForTimeout(150);
+      const settledTransform = await page.evaluate(() => {
+        const grid = document.querySelector(".origin-grid");
+        const topo = document.querySelector(".origin-topo-field");
+        return {
+          grid: grid ? window.getComputedStyle(grid).transform : "none",
+          topo: topo ? window.getComputedStyle(topo).transform : "none",
+        };
+      });
+
+      await page.mouse.move(width * 0.78, height * 0.26);
+      await page.waitForTimeout(220);
+      const hoverTransform = await page.evaluate(() => {
+        const grid = document.querySelector(".origin-grid");
+        const topo = document.querySelector(".origin-topo-field");
+        return {
+          grid: grid ? window.getComputedStyle(grid).transform : "none",
+          topo: topo ? window.getComputedStyle(topo).transform : "none",
+        };
+      });
+
+      if (
+        settledTransform.grid === hoverTransform.grid ||
+        settledTransform.topo === hoverTransform.topo
+      ) {
+        throw new Error(
+          `${name}: Origin shared plane did not respond to pointer movement: ${JSON.stringify({
+            settledTransform,
+            hoverTransform,
+          })}`,
+        );
       }
     }
 

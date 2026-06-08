@@ -904,11 +904,12 @@ button {
   overflow: hidden;
   padding: clamp(28px, 5vw, 74px);
   background:
-    radial-gradient(circle at 50% 42%, rgba(244, 242, 236, 0.18), transparent 31%),
-    linear-gradient(180deg, rgba(244, 242, 236, 0.12), rgba(16, 16, 16, 0.06)),
-    rgba(232, 230, 224, 0.82);
+    radial-gradient(circle at 50% 44%, rgba(255, 255, 255, 0.08), transparent 30%),
+    radial-gradient(circle at 50% 52%, rgba(255, 255, 255, 0.035), transparent 52%),
+    linear-gradient(180deg, rgba(255, 255, 255, 0.025), rgba(0, 0, 0, 0.18)),
+    rgb(14, 14, 14);
   opacity: 0;
-  perspective: 1200px;
+  perspective: 1500px;
   pointer-events: none;
 }
 
@@ -933,56 +934,52 @@ button {
 .origin-topo-field::before {
   background:
     repeating-radial-gradient(
-      ellipse at 50% 48%,
-      transparent 0 28px,
-      rgba(16, 16, 16, 0.18) 29px 30px,
-      transparent 31px 58px
-    ),
-    repeating-radial-gradient(
-      ellipse at 48% 52%,
-      transparent 0 72px,
-      rgba(16, 16, 16, 0.08) 73px 74px,
-      transparent 75px 138px
+      ellipse at 50% 52%,
+      transparent 0 44px,
+      rgba(255, 255, 255, 0.055) 45px 46px,
+      transparent 47px 92px
     );
-  mask-image: radial-gradient(ellipse at center, black 0 54%, transparent 75%);
+  mask-image: radial-gradient(ellipse at center, black 0 72%, transparent 96%);
 }
 
 .origin-topo-field::after {
   background:
-    linear-gradient(rgba(16, 16, 16, 0.05) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(16, 16, 16, 0.05) 1px, transparent 1px);
-  background-size: 96px 96px;
-  mask-image: radial-gradient(circle at center, black 0 50%, transparent 76%);
+    linear-gradient(24deg, transparent 0 48%, rgba(255, 255, 255, 0.05) 49%, transparent 50%),
+    linear-gradient(-24deg, transparent 0 48%, rgba(255, 255, 255, 0.038) 49%, transparent 50%),
+    radial-gradient(circle at 50% 52%, transparent 0 62%, rgba(255, 255, 255, 0.035) 63%, transparent 64%);
+  mask-image: radial-gradient(circle at center, black 0 76%, transparent 100%);
 }
 
 .origin-topo-rings {
-  border: 1px solid rgba(16, 16, 16, 0.18);
+  border: 1px solid rgba(255, 255, 255, 0.08);
   border-radius: 50%;
-  inset: 18% 23%;
+  inset: 16% 18%;
   box-shadow:
-    0 0 0 58px rgba(16, 16, 16, 0.025),
-    0 0 0 118px rgba(16, 16, 16, 0.02),
-    0 0 0 202px rgba(16, 16, 16, 0.018);
+    0 0 0 72px rgba(255, 255, 255, 0.022),
+    0 0 0 150px rgba(255, 255, 255, 0.019),
+    0 0 0 246px rgba(255, 255, 255, 0.016),
+    0 0 0 368px rgba(255, 255, 255, 0.013);
 }
 
 .origin-topo-scan {
   height: 1px;
   top: 50%;
-  background: linear-gradient(90deg, transparent, rgba(16, 16, 16, 0.42), transparent);
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.08), transparent);
   transform-origin: center;
 }
 
 .origin-topo-scan-a {
-  transform: rotate(24deg);
+  transform: rotate(21deg);
+  opacity: 0.5;
 }
 
 .origin-topo-scan-b {
-  transform: rotate(-31deg);
-  opacity: 0.58;
+  transform: rotate(-21deg);
+  opacity: 0.38;
 }
 
 .origin-exit-caption {
-  color: rgba(16, 16, 16, 0.58);
+  color: rgba(245, 245, 242, 0.72);
   font-size: 11px;
   font-weight: 800;
   letter-spacing: 0;
