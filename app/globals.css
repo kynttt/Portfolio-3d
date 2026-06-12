@@ -579,6 +579,24 @@ button {
   background-size: 128px 128px;
 }
 
+.origin-shared-plane {
+  position: relative;
+  min-height: 100vh;
+  min-height: 100svh;
+  perspective: 2400px;
+  transform-style: preserve-3d;
+  will-change: transform;
+}
+
+.origin-hover-plane {
+  position: relative;
+  min-height: 100vh;
+  min-height: 100svh;
+  transform-style: preserve-3d;
+  transform-origin: 50% 50%;
+  will-change: transform;
+}
+
 .origin-pin::before {
   content: "";
   position: absolute;
@@ -894,8 +912,6 @@ button {
 
 .origin-exit-stage {
   --origin-topo-alpha: 0;
-  --origin-topo-scale: 1.08;
-  --origin-topo-y: 28px;
   position: absolute;
   z-index: 1;
   inset: 0;
@@ -906,10 +922,9 @@ button {
   background:
     radial-gradient(circle at 50% 44%, rgba(255, 255, 255, 0.08), transparent 30%),
     radial-gradient(circle at 50% 52%, rgba(255, 255, 255, 0.035), transparent 52%),
-    linear-gradient(180deg, rgba(255, 255, 255, 0.025), rgba(0, 0, 0, 0.18)),
-    rgb(14, 14, 14);
+  linear-gradient(180deg, rgba(255, 255, 255, 0.025), rgba(0, 0, 0, 0.18)),
+  rgb(14, 14, 14);
   opacity: 0;
-  perspective: 1500px;
   pointer-events: none;
 }
 
@@ -917,8 +932,6 @@ button {
   position: absolute;
   inset: -18%;
   opacity: var(--origin-topo-alpha);
-  transform: translateY(var(--origin-topo-y)) scale(var(--origin-topo-scale));
-  transform-origin: center;
 }
 
 .origin-topo-field::before,

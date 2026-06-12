@@ -26,50 +26,54 @@ export function OriginSection() {
       aria-labelledby="origin-heading"
     >
       <div className="origin-pin">
-        <div className="origin-grid">
-          <div className="origin-copy-panel">
-            <p className="origin-eyebrow">{originCopy.eyebrow}</p>
-            <h2 className="origin-heading" id="origin-heading">
-              {originCopy.title.split("\n").map((line) => (
-                <span key={line}>{line}</span>
-              ))}
-            </h2>
-            <div className="origin-body">
-              <p>{originCopy.supporting}</p>
-              <p>{originCopy.secondary}</p>
-            </div>
-            <p className="origin-instruction">{originCopy.instruction}</p>
-          </div>
+        <div className="origin-shared-plane">
+          <div className="origin-hover-plane">
+            <div className="origin-grid">
+              <div className="origin-copy-panel">
+                <p className="origin-eyebrow">{originCopy.eyebrow}</p>
+                <h2 className="origin-heading" id="origin-heading">
+                  {originCopy.title.split("\n").map((line) => (
+                    <span key={line}>{line}</span>
+                  ))}
+                </h2>
+                <div className="origin-body">
+                  <p>{originCopy.supporting}</p>
+                  <p>{originCopy.secondary}</p>
+                </div>
+                <p className="origin-instruction">{originCopy.instruction}</p>
+              </div>
 
-          <div className="origin-assembly-panel">
-            <MechanicalAssembly />
-            <div className="origin-final-statement">
-              {originCopy.finalStatement.split("\n").map((line) => (
-                <Fragment key={line}>
-                  <span className="origin-final-line">
-                    {line.split(" ").map((word, index, words) => (
-                      <span className="origin-final-word" key={`${line}-${word}-${index}`}>
-                        {word}
-                        {index < words.length - 1 ? " " : ""}
+              <div className="origin-assembly-panel">
+                <MechanicalAssembly />
+                <div className="origin-final-statement">
+                  {originCopy.finalStatement.split("\n").map((line) => (
+                    <Fragment key={line}>
+                      <span className="origin-final-line">
+                        {line.split(" ").map((word, index, words) => (
+                          <span className="origin-final-word" key={`${line}-${word}-${index}`}>
+                            {word}
+                            {index < words.length - 1 ? " " : ""}
+                          </span>
+                        ))}
                       </span>
-                    ))}
-                  </span>
-                  {"\n"}
-                </Fragment>
-              ))}
-            </div>
-          </div>
+                      {"\n"}
+                    </Fragment>
+                  ))}
+                </div>
+              </div>
 
-          <div className="origin-side-panel">
-            <OriginMetadata />
-            <div className="origin-marker-stack">
-              {careerMarkers.map((marker) => (
-                <CareerMarker key={marker.id} marker={marker} />
-              ))}
+              <div className="origin-side-panel">
+                <OriginMetadata />
+                <div className="origin-marker-stack">
+                  {careerMarkers.map((marker) => (
+                    <CareerMarker key={marker.id} marker={marker} />
+                  ))}
+                </div>
+              </div>
             </div>
+            <OriginEndScene />
           </div>
         </div>
-        <OriginEndScene />
       </div>
     </section>
   );

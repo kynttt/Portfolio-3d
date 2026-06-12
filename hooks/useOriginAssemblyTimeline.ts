@@ -7,10 +7,11 @@ import { registerGsap } from "@/lib/gsap/registerGsap";
 const CLOCK_FRAME_COUNT = 96;
 const CLOCK_FRAME_SIZE = 960;
 const ORIGIN_END_SCENE_TIME = 6.65;
-const END_SCENE_BASE_ROTATION_X = 58;
-const END_SCENE_BASE_ROTATION_Z = -9;
-const END_SCENE_GRID_SCALE = 0.54;
-const END_SCENE_TOPO_SCALE = 0.92;
+const END_SCENE_BASE_ROTATION_X = 24;
+const END_SCENE_BASE_ROTATION_Z = -8;
+const END_SCENE_GRID_SCALE = 0.72;
+const END_SCENE_HOVER_ROTATION = 1.1;
+const END_SCENE_HOVER_OFFSET = 4;
 
 type OriginTimelineOptions = {
   enabled?: boolean;
@@ -101,11 +102,11 @@ export function useOriginAssemblyTimeline(
       const pin = root.querySelector<HTMLElement>(".origin-pin");
       const progressLabel = root.querySelector<HTMLElement>(".assembly-progress-value");
       const clockCanvas = root.querySelector<HTMLCanvasElement>(".origin-clock-sequence");
-      const originGrid = root.querySelector<HTMLElement>(".origin-grid");
-      const topoField = root.querySelector<HTMLElement>(".origin-topo-field");
+      const sharedPlane = root.querySelector<HTMLElement>(".origin-shared-plane");
+      const hoverPlane = root.querySelector<HTMLElement>(".origin-hover-plane");
       const hero = document.querySelector<HTMLElement>(".hero-frame");
 
-      if (!pin || !originGrid || !topoField) {
+      if (!pin || !sharedPlane || !hoverPlane) {
         return;
       }
 
@@ -189,18 +190,24 @@ export function useOriginAssemblyTimeline(
         x: -28,
         y: 18,
       });
+      gsap.set(sharedPlane, {
+        rotationX: 0,
+        rotationY: 0,
+        rotationZ: 0,
+        scale: 1,
+        x: 0,
+        y: 0,
+        transformPerspective: 2400,
+        transformOrigin: "50% 50%",
+      });
+      gsap.set(hoverPlane, {
+        clearProps: "rotationX,rotationY,rotationZ,x,y,transform",
+      });
       gsap.set(root.querySelectorAll(".origin-exit-stage"), {
         autoAlpha: 0,
       });
       gsap.set(root.querySelectorAll(".origin-topo-field"), {
         "--origin-topo-alpha": 0,
-        rotationX: END_SCENE_BASE_ROTATION_X,
-        rotationY: 0,
-        rotationZ: END_SCENE_BASE_ROTATION_Z,
-        scale: END_SCENE_TOPO_SCALE,
-        y: 6,
-        transformPerspective: 1500,
-        transformOrigin: "50% 50%",
       });
       gsap.set(root.querySelectorAll(".origin-exit-caption"), {
         autoAlpha: 0,
@@ -234,7 +241,8 @@ export function useOriginAssemblyTimeline(
                 ? "true"
                 : "false";
             if (root.dataset.endSceneActive !== "true") {
-              resetSharedPlaneToRest();
+              sharedPlaneToRest();
+              hoverPlaneToRest();
             }
           },
         },
@@ -243,57 +251,30 @@ export function useOriginAssemblyTimeline(
       const [markerOne, markerTwo, markerThree] = gsap.utils.toArray<HTMLElement>(
         root.querySelectorAll(".origin-marker"),
       );
-      const gridRotationXTo = gsap.quickTo(originGrid, "rotationX", {
-        duration: 0.45,
-        ease: "power3.out",
-      });
-      const gridRotationZTo = gsap.quickTo(originGrid, "rotationZ", {
-        duration: 0.45,
-        ease: "power3.out",
-      });
-      const gridXTo = gsap.quickTo(originGrid, "x", {
-        duration: 0.45,
-        ease: "power3.out",
-      });
-      const gridYTo = gsap.quickTo(originGrid, "y", {
-        duration: 0.45,
-        ease: "power3.out",
-      });
-      const topoRotationXTo = gsap.quickTo(topoField, "rotationX", {
-        duration: 0.45,
-        ease: "power3.out",
-      });
-      const topoRotationZTo = gsap.quickTo(topoField, "rotationZ", {
-        duration: 0.45,
-        ease: "power3.out",
-      });
-      const topoXTo = gsap.quickTo(topoField, "x", {
-        duration: 0.45,
-        ease: "power3.out",
-      });
-      const topoYTo = gsap.quickTo(topoField, "y", {
-        duration: 0.45,
-        ease: "power3.out",
-      });
-
-      const resetSharedPlaneToEndPose = () => {
-        gridRotationXTo(END_SCENE_BASE_ROTATION_X);
-        gridRotationZTo(END_SCENE_BASE_ROTATION_Z);
-        gridXTo(0);
-        gridYTo(-8);
-        topoRotationXTo(END_SCENE_BASE_ROTATION_X);
-        topoRotationZTo(END_SCENE_BASE_ROTATION_Z);
-        topoXTo(0);
-        topoYTo(6);
-      };
-
-      const resetSharedPlaneToRest = () => {
-        gsap.set(originGrid, {
-          boxShadow: "none",
-          clearProps: "rotationX,rotationY,rotationZ,transformPerspective,x,y",
+      const sharedPlaneToRest = () => {
+        gsap.set(sharedPlane, {
+          clearProps: "rotationX,rotationY,rotationZ,scale,x,y,transformPerspective",
         });
-        gsap.set(topoField, {
-          clearProps: "rotationX,rotationY,rotationZ,transformPerspective,x,y",
+      };
+      const hoverRotationXTo = gsap.quickTo(hoverPlane, "rotationX", {
+        duration: 0.52,
+        ease: "power3.out",
+      });
+      const hoverRotationYTo = gsap.quickTo(hoverPlane, "rotationY", {
+        duration: 0.52,
+        ease: "power3.out",
+      });
+      const hoverXTo = gsap.quickTo(hoverPlane, "x", {
+        duration: 0.52,
+        ease: "power3.out",
+      });
+      const hoverYTo = gsap.quickTo(hoverPlane, "y", {
+        duration: 0.52,
+        ease: "power3.out",
+      });
+      const hoverPlaneToRest = () => {
+        gsap.set(hoverPlane, {
+          clearProps: "rotationX,rotationY,rotationZ,x,y,transform",
         });
       };
 
@@ -302,18 +283,24 @@ export function useOriginAssemblyTimeline(
           return;
         }
 
-        const normalizedX = (event.clientX / window.innerWidth - 0.5) * 2;
-        const normalizedY = (event.clientY / window.innerHeight - 0.5) * 2;
+        const planeRect = pin.getBoundingClientRect();
+        const planeCenterX = planeRect.left + planeRect.width / 2;
+        const planeCenterY = planeRect.top + planeRect.height / 2;
+        const normalizedX = gsap.utils.clamp(
+          -1,
+          1,
+          ((event.clientX - planeCenterX) / Math.max(planeRect.width, 1)) * 2,
+        );
+        const normalizedY = gsap.utils.clamp(
+          -1,
+          1,
+          ((event.clientY - planeCenterY) / Math.max(planeRect.height, 1)) * 2,
+        );
 
-        gridRotationXTo(END_SCENE_BASE_ROTATION_X - normalizedY * 4);
-        gridRotationZTo(END_SCENE_BASE_ROTATION_Z + normalizedX * 3.5);
-        gridXTo(normalizedX * 14);
-        gridYTo(-8 + normalizedY * 10);
-
-        topoRotationXTo(END_SCENE_BASE_ROTATION_X - normalizedY * 4);
-        topoRotationZTo(END_SCENE_BASE_ROTATION_Z + normalizedX * 3.5);
-        topoXTo(normalizedX * 22);
-        topoYTo(6 + normalizedY * 14);
+        hoverRotationXTo(-normalizedY * END_SCENE_HOVER_ROTATION);
+        hoverRotationYTo(normalizedX * END_SCENE_HOVER_ROTATION);
+        hoverXTo(normalizedX * END_SCENE_HOVER_OFFSET);
+        hoverYTo(normalizedY * END_SCENE_HOVER_OFFSET);
       };
 
       timeline
@@ -378,37 +365,23 @@ export function useOriginAssemblyTimeline(
           "origin-end-scene",
         )
         .to(
-          root.querySelectorAll(".origin-grid"),
+          sharedPlane,
           {
             autoAlpha: 1,
             rotationX: END_SCENE_BASE_ROTATION_X,
             rotationY: 0,
             rotationZ: END_SCENE_BASE_ROTATION_Z,
             scale: END_SCENE_GRID_SCALE,
-            y: -8,
+            y: -18,
             boxShadow: "0 58px 150px rgba(0, 0, 0, 0.44)",
-            transformPerspective: 1500,
+            transformPerspective: 2400,
             transformOrigin: "50% 50%",
             duration: 1.18,
             ease: "power3.inOut",
           },
           "origin-end-scene+=0.02",
         )
-        .to(
-          root.querySelectorAll(".origin-topo-field"),
-          {
-            "--origin-topo-alpha": 1,
-            rotationX: END_SCENE_BASE_ROTATION_X,
-            rotationY: 0,
-            rotationZ: END_SCENE_BASE_ROTATION_Z,
-            scale: END_SCENE_TOPO_SCALE,
-            y: 6,
-            transformPerspective: 1500,
-            duration: 1.18,
-            ease: "none",
-          },
-          "origin-end-scene+=0.08",
-        )
+        .to(root.querySelectorAll(".origin-topo-field"), { "--origin-topo-alpha": 1, duration: 0.55 }, "origin-end-scene+=0.08")
         .to(
           root.querySelectorAll(".origin-exit-caption"),
           { autoAlpha: 1, y: 0, duration: 0.55 },
@@ -417,16 +390,17 @@ export function useOriginAssemblyTimeline(
         .to({}, { duration: 0.62 });
 
       root.dataset.endSceneActive = "false";
-      resetSharedPlaneToRest();
+      sharedPlaneToRest();
+      hoverPlaneToRest();
       window.addEventListener("pointermove", handlePointerMove);
-      root.addEventListener("pointerleave", resetSharedPlaneToEndPose);
+      root.addEventListener("pointerleave", hoverPlaneToRest);
       const onResize = () => renderClockFrame(Number(root.style.getPropertyValue("--assembly-progress")) || 0);
       window.addEventListener("resize", onResize);
 
       return () => {
         root.dataset.endSceneActive = "false";
         window.removeEventListener("pointermove", handlePointerMove);
-        root.removeEventListener("pointerleave", resetSharedPlaneToEndPose);
+        root.removeEventListener("pointerleave", hoverPlaneToRest);
         window.removeEventListener("resize", onResize);
         heroExit?.scrollTrigger?.kill();
         heroExit?.kill();
