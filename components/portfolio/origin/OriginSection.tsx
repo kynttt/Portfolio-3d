@@ -5,6 +5,7 @@ import { CareerMarker } from "@/components/portfolio/origin/CareerMarker";
 import { MechanicalAssembly } from "@/components/portfolio/origin/MechanicalAssembly";
 import { OriginEndScene } from "@/components/portfolio/origin/OriginEndScene";
 import { OriginMetadata } from "@/components/portfolio/origin/OriginMetadata";
+import { GLSLHills } from "@/components/ui/glsl-hills";
 import { careerMarkers, originCopy } from "@/data/origin-content";
 import { useOriginAssemblyTimeline } from "@/hooks/useOriginAssemblyTimeline";
 import { useReducedMotionPreference } from "@/hooks/useReducedMotionPreference";
@@ -79,6 +80,16 @@ export function OriginSection() {
           <div className="origin-blackout-atmosphere" />
           <div className="origin-blackout-veil" />
           <div className="origin-blackout-plate" />
+          <div className="origin-glsl-hills-stage">
+            <GLSLHills
+              className="origin-glsl-hills"
+              width="100%"
+              height="100%"
+              cameraZ={118}
+              planeSize={248}
+              speed={0.36}
+            />
+          </div>
         </div>
       </div>
     </section>

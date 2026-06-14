@@ -292,7 +292,7 @@ export function useOriginAssemblyTimeline(
       });
       gsap.set(
         root.querySelectorAll(
-          ".origin-bloom-canvas, .origin-blackout-atmosphere, .origin-blackout-veil, .origin-blackout-plate",
+          ".origin-bloom-canvas, .origin-blackout-atmosphere, .origin-blackout-veil, .origin-blackout-plate, .origin-glsl-hills-stage",
         ),
         {
           autoAlpha: 0,
@@ -519,7 +519,17 @@ export function useOriginAssemblyTimeline(
           { autoAlpha: 1, duration: 0.72 },
           "origin-blackout+=0.36",
         )
-        .to({}, { duration: 0.42 });
+        .to(
+          root.querySelectorAll(".origin-glsl-hills-stage"),
+          { autoAlpha: 0.82, duration: 0.56, ease: "power2.inOut" },
+          "origin-blackout+=0.72",
+        )
+        .to(
+          root.querySelectorAll(".origin-blackout-veil"),
+          { autoAlpha: 0.86, duration: 0.46, ease: "power2.out" },
+          "origin-blackout+=0.78",
+        )
+        .to({}, { duration: 0.18 });
 
       root.dataset.endSceneActive = "false";
       sharedPlaneToRest();

@@ -297,23 +297,32 @@ try {
         const veil = document.querySelector(".origin-blackout-veil");
         const plate = document.querySelector(".origin-blackout-plate");
         const bloom = document.querySelector(".origin-bloom-canvas");
+        const hillsStage = document.querySelector(".origin-glsl-hills-stage");
+        const hillsCanvas = document.querySelector(".origin-glsl-hills-stage canvas");
         const blackoutStage = document.querySelector(".origin-blackout-stage");
         const stage = document.querySelector(".origin-exit-stage");
         const grid = document.querySelector(".origin-grid");
         const caption = document.querySelector(".origin-exit-caption");
         const style = veil ? window.getComputedStyle(veil) : null;
         const plateStyle = plate ? window.getComputedStyle(plate) : null;
+        const hillsStyle = hillsStage ? window.getComputedStyle(hillsStage) : null;
         const blackoutStageStyle = blackoutStage ? window.getComputedStyle(blackoutStage) : null;
         const stageStyle = stage ? window.getComputedStyle(stage) : null;
         const gridStyle = grid ? window.getComputedStyle(grid) : null;
         const captionStyle = caption ? window.getComputedStyle(caption) : null;
+        const hillsRect = hillsCanvas?.getBoundingClientRect();
 
         return {
           hasVeil: Boolean(veil),
           hasPlate: Boolean(plate),
           hasBloom: Boolean(bloom),
+          hasHillsStage: Boolean(hillsStage),
+          hasHillsCanvas: Boolean(hillsCanvas),
           veilOpacity: style ? Number(style.opacity) : 0,
           plateOpacity: plateStyle ? Number(plateStyle.opacity) : 0,
+          hillsOpacity: hillsStyle ? Number(hillsStyle.opacity) : 0,
+          hillsWidth: hillsRect?.width ?? 0,
+          hillsHeight: hillsRect?.height ?? 0,
           stageBackground: stageStyle?.backgroundColor ?? "",
           blackoutStageZIndex: blackoutStageStyle ? Number(blackoutStageStyle.zIndex) : 0,
           gridZIndex: gridStyle ? Number(gridStyle.zIndex) : 0,
@@ -325,8 +334,13 @@ try {
         !blackoutState.hasVeil ||
         !blackoutState.hasPlate ||
         !blackoutState.hasBloom ||
+        !blackoutState.hasHillsStage ||
+        !blackoutState.hasHillsCanvas ||
         blackoutState.veilOpacity < 0.82 ||
         blackoutState.plateOpacity < 0.9 ||
+        blackoutState.hillsOpacity < 0.55 ||
+        blackoutState.hillsWidth < width * 0.95 ||
+        blackoutState.hillsHeight < height * 0.95 ||
         blackoutState.blackoutStageZIndex <= blackoutState.gridZIndex ||
         blackoutState.captionOpacity > 0.25
       ) {
