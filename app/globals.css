@@ -784,19 +784,66 @@ button {
 .origin-exit-stage {
   --origin-topo-alpha: 0;
   position: absolute;
-  z-index: 1;
+  z-index: 8;
   inset: 0;
   display: grid;
   place-items: center;
   overflow: hidden;
   padding: clamp(28px, 5vw, 74px);
   background:
-    radial-gradient(circle at 50% 44%, rgba(255, 255, 255, 0.08), transparent 30%),
-    radial-gradient(circle at 50% 52%, rgba(255, 255, 255, 0.035), transparent 52%),
-  linear-gradient(180deg, rgba(255, 255, 255, 0.025), rgba(0, 0, 0, 0.18)),
-  rgb(14, 14, 14);
+    radial-gradient(circle at 50% 44%, rgba(16, 16, 16, 0.07), transparent 30%),
+    radial-gradient(circle at 50% 52%, rgba(16, 16, 16, 0.035), transparent 52%);
   opacity: 0;
   pointer-events: none;
+}
+
+.origin-blackout-stage {
+  position: absolute;
+  inset: 0;
+  z-index: 12;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.origin-bloom-canvas,
+.origin-blackout-atmosphere,
+.origin-blackout-veil,
+.origin-blackout-plate {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  display: block;
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.origin-bloom-canvas {
+  z-index: 2;
+  mix-blend-mode: screen;
+  filter: blur(0.5px) saturate(1.12);
+}
+
+.origin-blackout-atmosphere {
+  z-index: 4;
+  background:
+    radial-gradient(ellipse at 50% 42%, rgba(245, 242, 232, 0.16), transparent 0 22%, rgba(8, 8, 8, 0.22) 48%, rgba(3, 3, 3, 0.84) 100%),
+    radial-gradient(ellipse at 50% 86%, rgba(255, 255, 255, 0.08), transparent 0 28%, rgba(0, 0, 0, 0.58) 72%),
+    linear-gradient(180deg, rgba(0, 0, 0, 0.08), rgba(0, 0, 0, 0.9));
+  backdrop-filter: blur(2px);
+}
+
+.origin-blackout-veil {
+  z-index: 5;
+  background:
+    radial-gradient(circle at 50% 46%, rgba(255, 255, 255, 0.08), transparent 0 18%, rgba(0, 0, 0, 0.28) 42%, rgba(0, 0, 0, 0.94) 100%),
+    linear-gradient(180deg, rgba(4, 4, 4, 0.32), rgba(0, 0, 0, 0.98));
+}
+
+.origin-blackout-plate {
+  z-index: 6;
+  background: #030303;
 }
 
 .origin-topo-field {
@@ -805,65 +852,35 @@ button {
   opacity: var(--origin-topo-alpha);
 }
 
-.origin-topo-field::before,
-.origin-topo-field::after,
-.origin-topo-rings,
-.origin-topo-scan {
-  content: "";
+.origin-topo-field::before {
+  content: none;
   position: absolute;
   inset: 0;
   pointer-events: none;
-}
-
-.origin-topo-field::before {
   background:
     repeating-radial-gradient(
       ellipse at 50% 52%,
       transparent 0 44px,
-      rgba(255, 255, 255, 0.055) 45px 46px,
+      rgba(16, 16, 16, 0.09) 45px 46px,
       transparent 47px 92px
     );
   mask-image: radial-gradient(ellipse at center, black 0 72%, transparent 96%);
 }
 
 .origin-topo-field::after {
+  content: none;
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
   background:
-    linear-gradient(24deg, transparent 0 48%, rgba(255, 255, 255, 0.05) 49%, transparent 50%),
-    linear-gradient(-24deg, transparent 0 48%, rgba(255, 255, 255, 0.038) 49%, transparent 50%),
-    radial-gradient(circle at 50% 52%, transparent 0 62%, rgba(255, 255, 255, 0.035) 63%, transparent 64%);
+    linear-gradient(24deg, transparent 0 48%, rgba(16, 16, 16, 0.08) 49%, transparent 50%),
+    linear-gradient(-24deg, transparent 0 48%, rgba(16, 16, 16, 0.06) 49%, transparent 50%),
+    radial-gradient(circle at 50% 52%, transparent 0 62%, rgba(16, 16, 16, 0.05) 63%, transparent 64%);
   mask-image: radial-gradient(circle at center, black 0 76%, transparent 100%);
 }
 
-.origin-topo-rings {
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  border-radius: 50%;
-  inset: 16% 18%;
-  box-shadow:
-    0 0 0 72px rgba(255, 255, 255, 0.022),
-    0 0 0 150px rgba(255, 255, 255, 0.019),
-    0 0 0 246px rgba(255, 255, 255, 0.016),
-    0 0 0 368px rgba(255, 255, 255, 0.013);
-}
-
-.origin-topo-scan {
-  height: 1px;
-  top: 50%;
-  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.08), transparent);
-  transform-origin: center;
-}
-
-.origin-topo-scan-a {
-  transform: rotate(21deg);
-  opacity: 0.5;
-}
-
-.origin-topo-scan-b {
-  transform: rotate(-21deg);
-  opacity: 0.38;
-}
-
 .origin-exit-caption {
-  color: rgba(245, 245, 242, 0.72);
+  color: rgba(16, 16, 16, 0.52);
   font-size: 11px;
   font-weight: 800;
   letter-spacing: 0;
@@ -872,7 +889,7 @@ button {
 
 .origin-exit-caption {
   position: absolute;
-  z-index: 3;
+  z-index: 7;
   left: clamp(28px, 4vw, 64px);
   right: clamp(28px, 4vw, 64px);
   bottom: clamp(24px, 4vh, 52px);

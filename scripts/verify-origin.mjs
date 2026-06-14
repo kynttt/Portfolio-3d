@@ -136,6 +136,17 @@ try {
       throw new Error(`${name}: Origin zoom-out end scene is missing or still uses a custom slab`);
     }
 
+    const hasTopoPatternArtifacts = await page.evaluate(() => {
+      return Boolean(
+        document.querySelector(".origin-topo-rings") ||
+          document.querySelector(".origin-topo-scan"),
+      );
+    });
+
+    if (hasTopoPatternArtifacts) {
+      throw new Error(`${name}: Origin zoom-out still renders circular or X scan artifacts`);
+    }
+
     const progressed = await page.locator(".assembly-progress-value").first().innerText();
     if (name === "desktop" && progressed === "00%") {
       throw new Error(`${name}: Origin assembly progress did not advance`);
@@ -217,7 +228,7 @@ try {
 
       if (
         endSceneState.stageOpacity < 0.55 ||
-        !endSceneState.stageBackground.includes("14, 14, 14") ||
+        !endSceneState.stageBackground.includes("rgba(0, 0, 0, 0)") ||
         endSceneState.planeOpacity < 0.75 ||
         !endSceneState.planeTransform.startsWith("matrix3d") ||
         endSceneState.hoverPlaneTransform !== "none" ||
@@ -268,6 +279,59 @@ try {
             settledTransform,
             hoverTransform,
           })}`,
+        );
+      }
+
+      await page.evaluate(() => {
+        const origin = document.querySelector(".origin-section");
+        if (origin) {
+          window.scrollTo(
+            0,
+            origin.getBoundingClientRect().top + window.scrollY + window.innerHeight * 5.9,
+          );
+        }
+      });
+      await page.waitForTimeout(900);
+
+      const blackoutState = await page.evaluate(() => {
+        const veil = document.querySelector(".origin-blackout-veil");
+        const plate = document.querySelector(".origin-blackout-plate");
+        const bloom = document.querySelector(".origin-bloom-canvas");
+        const blackoutStage = document.querySelector(".origin-blackout-stage");
+        const stage = document.querySelector(".origin-exit-stage");
+        const grid = document.querySelector(".origin-grid");
+        const caption = document.querySelector(".origin-exit-caption");
+        const style = veil ? window.getComputedStyle(veil) : null;
+        const plateStyle = plate ? window.getComputedStyle(plate) : null;
+        const blackoutStageStyle = blackoutStage ? window.getComputedStyle(blackoutStage) : null;
+        const stageStyle = stage ? window.getComputedStyle(stage) : null;
+        const gridStyle = grid ? window.getComputedStyle(grid) : null;
+        const captionStyle = caption ? window.getComputedStyle(caption) : null;
+
+        return {
+          hasVeil: Boolean(veil),
+          hasPlate: Boolean(plate),
+          hasBloom: Boolean(bloom),
+          veilOpacity: style ? Number(style.opacity) : 0,
+          plateOpacity: plateStyle ? Number(plateStyle.opacity) : 0,
+          stageBackground: stageStyle?.backgroundColor ?? "",
+          blackoutStageZIndex: blackoutStageStyle ? Number(blackoutStageStyle.zIndex) : 0,
+          gridZIndex: gridStyle ? Number(gridStyle.zIndex) : 0,
+          captionOpacity: captionStyle ? Number(captionStyle.opacity) : 0,
+        };
+      });
+
+      if (
+        !blackoutState.hasVeil ||
+        !blackoutState.hasPlate ||
+        !blackoutState.hasBloom ||
+        blackoutState.veilOpacity < 0.82 ||
+        blackoutState.plateOpacity < 0.9 ||
+        blackoutState.blackoutStageZIndex <= blackoutState.gridZIndex ||
+        blackoutState.captionOpacity > 0.25
+      ) {
+        throw new Error(
+          `${name}: blackout end state did not take over cleanly: ${JSON.stringify(blackoutState)}`,
         );
       }
     }

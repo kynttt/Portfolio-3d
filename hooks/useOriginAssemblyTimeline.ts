@@ -7,6 +7,7 @@ import { registerGsap } from "@/lib/gsap/registerGsap";
 const CLOCK_FRAME_COUNT = 96;
 const CLOCK_FRAME_SIZE = 960;
 const ORIGIN_END_SCENE_TIME = 6.65;
+const ORIGIN_BLACKOUT_TIME = 7.85;
 const END_SCENE_BASE_ROTATION_X = 24;
 const END_SCENE_BASE_ROTATION_Z = -8;
 const END_SCENE_GRID_SCALE = 0.72;
@@ -83,6 +84,70 @@ function drawClockFrame(
   canvas.dataset.frame = String(frameIndex);
 }
 
+function drawBloomFrame(canvas: HTMLCanvasElement, intensity: number) {
+  const context = canvas.getContext("2d");
+  if (!context) {
+    return;
+  }
+
+  const pixelRatio = window.devicePixelRatio || 1;
+  const displayWidth = canvas.clientWidth || window.innerWidth;
+  const displayHeight = canvas.clientHeight || window.innerHeight;
+  const canvasWidth = Math.round(displayWidth * pixelRatio);
+  const canvasHeight = Math.round(displayHeight * pixelRatio);
+  const clampedIntensity = Math.max(0, Math.min(1, intensity));
+
+  if (canvas.width !== canvasWidth || canvas.height !== canvasHeight) {
+    canvas.width = canvasWidth;
+    canvas.height = canvasHeight;
+  }
+
+  context.setTransform(pixelRatio, 0, 0, pixelRatio, 0, 0);
+  context.clearRect(0, 0, displayWidth, displayHeight);
+
+  if (clampedIntensity <= 0.01) {
+    canvas.dataset.intensity = "0";
+    return;
+  }
+
+  context.globalCompositeOperation = "screen";
+  context.globalAlpha = 0.72 * clampedIntensity;
+
+  const mainGlow = context.createRadialGradient(
+    displayWidth * 0.5,
+    displayHeight * 0.48,
+    0,
+    displayWidth * 0.5,
+    displayHeight * 0.48,
+    Math.max(displayWidth, displayHeight) * 0.58,
+  );
+  mainGlow.addColorStop(0, "rgba(244, 241, 232, 0.86)");
+  mainGlow.addColorStop(0.2, "rgba(216, 213, 202, 0.32)");
+  mainGlow.addColorStop(0.48, "rgba(122, 119, 109, 0.1)");
+  mainGlow.addColorStop(1, "rgba(0, 0, 0, 0)");
+  context.fillStyle = mainGlow;
+  context.fillRect(0, 0, displayWidth, displayHeight);
+
+  context.globalAlpha = 0.45 * clampedIntensity;
+  const horizonGlow = context.createRadialGradient(
+    displayWidth * 0.5,
+    displayHeight * 0.86,
+    0,
+    displayWidth * 0.5,
+    displayHeight * 0.86,
+    displayWidth * 0.46,
+  );
+  horizonGlow.addColorStop(0, "rgba(255, 255, 248, 0.38)");
+  horizonGlow.addColorStop(0.34, "rgba(180, 178, 166, 0.13)");
+  horizonGlow.addColorStop(1, "rgba(0, 0, 0, 0)");
+  context.fillStyle = horizonGlow;
+  context.fillRect(0, 0, displayWidth, displayHeight);
+
+  context.globalAlpha = 1;
+  context.globalCompositeOperation = "source-over";
+  canvas.dataset.intensity = clampedIntensity.toFixed(3);
+}
+
 export function useOriginAssemblyTimeline(
   rootRef: RefObject<HTMLElement | null>,
   { enabled = true, reducedMotion = false }: OriginTimelineOptions = {},
@@ -104,6 +169,7 @@ export function useOriginAssemblyTimeline(
       const clockCanvas = root.querySelector<HTMLCanvasElement>(".origin-clock-sequence");
       const sharedPlane = root.querySelector<HTMLElement>(".origin-shared-plane");
       const hoverPlane = root.querySelector<HTMLElement>(".origin-hover-plane");
+      const bloomCanvas = root.querySelector<HTMLCanvasElement>(".origin-bloom-canvas");
       const hero = document.querySelector<HTMLElement>(".hero-frame");
 
       if (!pin || !sharedPlane || !hoverPlane) {
@@ -143,8 +209,16 @@ export function useOriginAssemblyTimeline(
           };
         }
       };
+      const renderBloomFrame = (intensity: number) => {
+        if (!bloomCanvas) {
+          return;
+        }
+
+        drawBloomFrame(bloomCanvas, intensity);
+      };
 
       renderClockFrame(reducedMotion || isMobile ? 1 : 0);
+      renderBloomFrame(0);
 
       if (!enabled || reducedMotion || isMobile) {
         root.style.setProperty("--assembly-progress", "1");
@@ -216,24 +290,42 @@ export function useOriginAssemblyTimeline(
         autoAlpha: 0,
         y: 18,
       });
+      gsap.set(
+        root.querySelectorAll(
+          ".origin-bloom-canvas, .origin-blackout-atmosphere, .origin-blackout-veil, .origin-blackout-plate",
+        ),
+        {
+          autoAlpha: 0,
+        },
+      );
 
       const timeline = gsap.timeline({
         defaults: { ease: "power2.out" },
         scrollTrigger: {
           trigger: pin,
           start: "top top",
-          end: () => (window.innerWidth >= 1180 ? "+=500%" : "+=350%"),
+          end: () => (window.innerWidth >= 1180 ? "+=600%" : "+=420%"),
           pin,
           scrub: 1,
           anticipatePin: 1,
           invalidateOnRefresh: true,
           onUpdate: (self) => {
+            const timelineDuration = self.animation?.duration() || ORIGIN_BLACKOUT_TIME + 1;
+            const timelineTime = self.progress * timelineDuration;
             const assemblyProgress = Math.min(
               1,
-              self.progress / (ORIGIN_END_SCENE_TIME / (self.animation?.duration() || ORIGIN_END_SCENE_TIME)),
+              self.progress / (ORIGIN_END_SCENE_TIME / timelineDuration),
             );
+            const blackoutProgress = gsap.utils.clamp(
+              0,
+              1,
+              (timelineTime - (ORIGIN_BLACKOUT_TIME - 0.12)) / 0.9,
+            );
+            const bloomFalloff = blackoutProgress > 0.74 ? Math.max(0.08, 1 - (blackoutProgress - 0.74) / 0.26) : 1;
+
             root.style.setProperty("--assembly-progress", assemblyProgress.toFixed(3));
             renderClockFrame(assemblyProgress);
+            renderBloomFrame(blackoutProgress * bloomFalloff);
             if (progressLabel) {
               progressLabel.textContent = `${Math.round(assemblyProgress * 100)
                 .toString()
@@ -379,7 +471,7 @@ export function useOriginAssemblyTimeline(
             boxShadow: "0 58px 150px rgba(0, 0, 0, 0.44)",
             transformPerspective: 2400,
             transformOrigin: "50% 50%",
-            duration: 1.18,
+            duration: 0.62,
             ease: "power3.inOut",
           },
           "origin-end-scene+=0.02",
@@ -387,17 +479,57 @@ export function useOriginAssemblyTimeline(
         .to(root.querySelectorAll(".origin-topo-field"), { "--origin-topo-alpha": 1, duration: 0.55 }, "origin-end-scene+=0.08")
         .to(
           root.querySelectorAll(".origin-exit-caption"),
-          { autoAlpha: 1, y: 0, duration: 0.55 },
-          "origin-end-scene+=0.82",
+          { autoAlpha: 1, y: 0, duration: 0.4 },
+          "origin-end-scene+=0.62",
         )
-        .to({}, { duration: 0.62 });
+        .addLabel("origin-blackout", ORIGIN_BLACKOUT_TIME)
+        .to(
+          root.querySelectorAll(".origin-exit-caption"),
+          { autoAlpha: 0, y: 10, duration: 0.35 },
+          "origin-blackout",
+        )
+        .to(
+          root.querySelectorAll(".origin-bloom-canvas"),
+          { autoAlpha: 0.78, duration: 0.34 },
+          "origin-blackout+=0.02",
+        )
+        .to(
+          root.querySelectorAll(".origin-topo-field"),
+          { "--origin-topo-alpha": 0.32, duration: 0.56 },
+          "origin-blackout+=0.08",
+        )
+        .to(
+          root.querySelectorAll(".origin-blackout-atmosphere"),
+          { autoAlpha: 0.78, duration: 0.54 },
+          "origin-blackout+=0.08",
+        )
+        .to(
+          root.querySelectorAll(".origin-blackout-veil"),
+          { autoAlpha: 0.92, duration: 0.68 },
+          "origin-blackout+=0.16",
+        )
+        .to(sharedPlane, { autoAlpha: 0.16, scale: END_SCENE_GRID_SCALE * 0.96, duration: 0.82 }, "origin-blackout+=0.18")
+        .to(
+          root.querySelectorAll(".origin-bloom-canvas"),
+          { autoAlpha: 0.08, duration: 0.34 },
+          "origin-blackout+=0.58",
+        )
+        .to(
+          root.querySelectorAll(".origin-blackout-plate"),
+          { autoAlpha: 1, duration: 0.72 },
+          "origin-blackout+=0.36",
+        )
+        .to({}, { duration: 0.42 });
 
       root.dataset.endSceneActive = "false";
       sharedPlaneToRest();
       hoverPlaneToRest();
       window.addEventListener("pointermove", handlePointerMove);
       root.addEventListener("pointerleave", hoverPlaneToRest);
-      const onResize = () => renderClockFrame(Number(root.style.getPropertyValue("--assembly-progress")) || 0);
+      const onResize = () => {
+        renderClockFrame(Number(root.style.getPropertyValue("--assembly-progress")) || 0);
+        renderBloomFrame(Number(bloomCanvas?.dataset.intensity ?? "0"));
+      };
       window.addEventListener("resize", onResize);
 
       return () => {
@@ -407,6 +539,7 @@ export function useOriginAssemblyTimeline(
         window.removeEventListener("resize", onResize);
         heroExit?.scrollTrigger?.kill();
         heroExit?.kill();
+        renderBloomFrame(0);
         gsap.set(pin, { clearProps: "transform" });
         timeline.scrollTrigger?.kill();
         timeline.kill();
