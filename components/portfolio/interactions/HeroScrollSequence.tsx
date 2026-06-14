@@ -41,6 +41,21 @@ function drawFrame(
   context.setTransform(pixelRatio, 0, 0, pixelRatio, 0, 0);
   context.clearRect(0, 0, displayWidth, displayHeight);
   context.drawImage(image, 0, 0, displayWidth, displayHeight);
+
+  const imageData = context.getImageData(0, 0, canvasWidth, canvasHeight);
+  const pixels = imageData.data;
+
+  for (let index = 0; index < pixels.length; index += 4) {
+    const red = pixels[index];
+    const green = pixels[index + 1];
+    const blue = pixels[index + 2];
+
+    if (red > 244 && green > 244 && blue > 244) {
+      pixels[index + 3] = 0;
+    }
+  }
+
+  context.putImageData(imageData, 0, 0);
   canvas.dataset.frame = String(frameIndex);
 }
 
@@ -54,7 +69,7 @@ export function HeroScrollSequence({
   useGSAP(
     () => {
       const canvas = canvasRef.current;
-      const transition = document.querySelector<HTMLElement>(".origin-section");
+      const scrollZone = document.querySelector<HTMLElement>(".hero-scroll-zone");
 
       if (!canvas) {
         return;
@@ -86,7 +101,7 @@ export function HeroScrollSequence({
         render();
       }
 
-      if (!transition || !enabled) {
+      if (!scrollZone || !enabled) {
         return;
       }
 
@@ -96,9 +111,9 @@ export function HeroScrollSequence({
         snap: "frame",
         onUpdate: render,
         scrollTrigger: {
-          trigger: transition,
-          start: "top bottom",
-          end: "top top",
+          trigger: scrollZone,
+          start: "top top",
+          end: "bottom bottom",
           scrub: 0.9,
           invalidateOnRefresh: true,
         },

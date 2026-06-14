@@ -28,7 +28,7 @@ try {
 
   const assertNoHeroParallax = async (label) => {
     const transforms = await page.evaluate(() => {
-      const selectors = [".portrait-placeholder", ".hero-copy", ".detail-orbit-wrap"];
+      const selectors = [".portrait-placeholder", ".hero-copy"];
 
       return selectors.map((selector) => {
         const element = document.querySelector(selector);
@@ -73,66 +73,20 @@ try {
     fullPage: false,
   });
 
-  const cta = await page.locator(".detail-orbit").boundingBox();
-  if (!cta) {
-    throw new Error("Missing magnetic CTA");
-  }
-
-  await page.mouse.move(cta.x + cta.width * 0.82, cta.y + cta.height * 0.28);
-  await page.waitForTimeout(450);
-
-  const ctaTransform = await page.locator(".detail-orbit").evaluate((element) => {
-    return window.getComputedStyle(element).transform;
-  });
-
-  if (ctaTransform === "none") {
-    throw new Error("Magnetic CTA did not receive a transform on hover");
+  const ctaCount = await page.locator(".detail-orbit").count();
+  if (ctaCount !== 0) {
+    throw new Error(`Hero CTA should remain removed in this layout. Found: ${ctaCount}`);
   }
 
   await page.screenshot({
-    path: `${outDir}/hero-cta-active.png`,
+    path: `${outDir}/hero-interaction-clean-state.png`,
     fullPage: false,
   });
 
-  const portrait = await page.locator(".character-reveal").boundingBox();
-  if (!portrait) {
-    throw new Error("Missing character reveal target");
+  const revealCount = await page.locator(".character-reveal").count();
+  if (revealCount !== 0) {
+    throw new Error(`Character reveal should be set aside outside the hero. Found: ${revealCount}`);
   }
-
-  await page.mouse.move(portrait.x + portrait.width * 0.46, portrait.y + portrait.height * 0.28);
-  await page.waitForTimeout(550);
-
-  const portraitTransformState = await page.locator(".character-reveal").evaluate((element) => {
-    const style = window.getComputedStyle(element);
-    return {
-      transform: style.transform,
-      inlineStyle: element.getAttribute("style") ?? "",
-    };
-  });
-
-  if (
-    portraitTransformState.transform !== "none" ||
-    portraitTransformState.inlineStyle.includes("perspective(") ||
-    portraitTransformState.inlineStyle.includes("rotateX") ||
-    portraitTransformState.inlineStyle.includes("rotateY")
-  ) {
-    throw new Error(
-      `Hero portrait tilt is still active: ${JSON.stringify(portraitTransformState)}`,
-    );
-  }
-
-  const skeletonOpacity = await page.locator(".character-skeleton-image").evaluate((element) => {
-    return Number(window.getComputedStyle(element).opacity);
-  });
-
-  if (skeletonOpacity < 0.45) {
-    throw new Error(`Skeleton reveal did not activate. Opacity: ${skeletonOpacity}`);
-  }
-
-  await page.screenshot({
-    path: `${outDir}/hero-skeleton-active.png`,
-    fullPage: false,
-  });
 
   console.log("Interaction verification passed. Screenshots written to artifacts/.");
   await page.close();

@@ -154,6 +154,8 @@ export function useOriginAssemblyTimeline(
         return;
       }
 
+      gsap.set(pin, { yPercent: 0 });
+
       const heroExit = hero
         ? gsap
             .timeline({
@@ -164,13 +166,14 @@ export function useOriginAssemblyTimeline(
                 scrub: 0.8,
               },
             })
-            .to(hero, { scale: 0.985, autoAlpha: 0.82, transformOrigin: "50% 100%" }, 0)
+            .to(hero, { scale: 0.968, autoAlpha: 0.28, y: -32, transformOrigin: "50% 100%" }, 0)
             .to(
               hero.querySelectorAll(".hero-copy p:last-child, .detail-orbit-wrap"),
-              { y: -34, autoAlpha: 0.22 },
+              { y: -36, autoAlpha: 0.08 },
               0,
             )
-            .to(hero.querySelectorAll(".portrait-placeholder"), { y: -44 }, 0)
+            .to(hero.querySelectorAll(".portrait-placeholder"), { y: -42, autoAlpha: 0.26 }, 0)
+            .to(hero.querySelectorAll(".oversized-mark"), { y: -18, autoAlpha: 0.02 }, 0)
         : null;
 
       gsap.set(root.querySelectorAll(".origin-marker"), { autoAlpha: 0, y: 18 });
@@ -217,7 +220,7 @@ export function useOriginAssemblyTimeline(
       const timeline = gsap.timeline({
         defaults: { ease: "power2.out" },
         scrollTrigger: {
-          trigger: root,
+          trigger: pin,
           start: "top top",
           end: () => (window.innerWidth >= 1180 ? "+=500%" : "+=350%"),
           pin,
@@ -404,6 +407,7 @@ export function useOriginAssemblyTimeline(
         window.removeEventListener("resize", onResize);
         heroExit?.scrollTrigger?.kill();
         heroExit?.kill();
+        gsap.set(pin, { clearProps: "transform" });
         timeline.scrollTrigger?.kill();
         timeline.kill();
       };

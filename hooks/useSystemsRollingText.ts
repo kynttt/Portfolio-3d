@@ -18,9 +18,9 @@ export function useSystemsRollingText(
   useGSAP(
     () => {
       const root = rootRef.current;
-      const transition = document.querySelector<HTMLElement>(".origin-section");
+      const scrollZone = document.querySelector<HTMLElement>(".hero-scroll-zone");
 
-      if (!root || !transition || !enabled || reducedMotion) {
+      if (!root || !scrollZone || !enabled || reducedMotion) {
         return;
       }
 
@@ -50,9 +50,9 @@ export function useSystemsRollingText(
 
       const timeline = gsap.timeline({
         scrollTrigger: {
-          trigger: transition,
-          start: "top bottom",
-          end: "top 18%",
+          trigger: scrollZone,
+          start: "top top",
+          end: "bottom bottom",
           scrub: 0.9,
           invalidateOnRefresh: true,
         },

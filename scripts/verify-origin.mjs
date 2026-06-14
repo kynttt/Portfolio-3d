@@ -41,7 +41,7 @@ try {
     await page.evaluate(() => window.scrollTo(0, window.innerHeight * 0.55));
     await page.waitForTimeout(800);
 
-    const sequenceFrame = await page.locator(".technical-object").evaluate((element) => {
+    const sequenceFrame = await page.locator(".hero-backdrop-object").evaluate((element) => {
       return Number(element.dataset.frame ?? "0");
     });
 
@@ -67,11 +67,11 @@ try {
       (coverState.heroTop === undefined ||
         coverState.originTop === undefined ||
         Math.abs(coverState.heroTop) > 48 ||
-        coverState.originTop <= 0 ||
-        coverState.originTop >= coverState.viewportHeight)
+        coverState.originTop >= coverState.viewportHeight ||
+        coverState.originTop <= coverState.viewportHeight * 0.42)
     ) {
       throw new Error(
-        `${name}: Origin is not directly covering a sticky hero: ${JSON.stringify(coverState)}`,
+        `${name}: Origin handoff is not entering with the expected cover/parallax range: ${JSON.stringify(coverState)}`,
       );
     }
 
