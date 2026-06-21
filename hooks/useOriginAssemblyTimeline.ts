@@ -8,6 +8,9 @@ const CLOCK_FRAME_COUNT = 96;
 const CLOCK_FRAME_SIZE = 960;
 const ORIGIN_END_SCENE_TIME = 6.65;
 const ORIGIN_BLACKOUT_TIME = 7.85;
+const ORIGIN_GALLERY_START_TIME = ORIGIN_BLACKOUT_TIME + 0.86;
+const ORIGIN_GALLERY_DURATION = 3.2;
+const ORIGIN_GALLERY_FRAME_COUNT = 5;
 const END_SCENE_BASE_ROTATION_X = 24;
 const END_SCENE_BASE_ROTATION_Z = -8;
 const END_SCENE_GRID_SCALE = 0.72;
@@ -170,6 +173,8 @@ export function useOriginAssemblyTimeline(
       const sharedPlane = root.querySelector<HTMLElement>(".origin-shared-plane");
       const hoverPlane = root.querySelector<HTMLElement>(".origin-hover-plane");
       const bloomCanvas = root.querySelector<HTMLCanvasElement>(".origin-bloom-canvas");
+      const galleryTrack = root.querySelector<HTMLElement>(".origin-gallery-track");
+      const galleryCount = root.querySelector<HTMLElement>(".origin-gallery-count");
       const hero = document.querySelector<HTMLElement>(".hero-frame");
 
       if (!pin || !sharedPlane || !hoverPlane) {
@@ -292,19 +297,26 @@ export function useOriginAssemblyTimeline(
       });
       gsap.set(
         root.querySelectorAll(
-          ".origin-bloom-canvas, .origin-blackout-atmosphere, .origin-blackout-veil, .origin-blackout-plate, .origin-glsl-hills-stage",
+          ".origin-bloom-canvas, .origin-blackout-atmosphere, .origin-blackout-veil, .origin-blackout-plate, .origin-glsl-hills-stage, .origin-gallery",
         ),
         {
           autoAlpha: 0,
         },
       );
+      gsap.set(root.querySelectorAll(".origin-gallery-track"), {
+        x: 0,
+      });
+      gsap.set(root.querySelectorAll(".origin-gallery-card"), {
+        autoAlpha: 0,
+        scale: 0.96,
+      });
 
       const timeline = gsap.timeline({
         defaults: { ease: "power2.out" },
         scrollTrigger: {
           trigger: pin,
           start: "top top",
-          end: () => (window.innerWidth >= 1180 ? "+=600%" : "+=420%"),
+          end: () => (window.innerWidth >= 1180 ? "+=800%" : "+=600%"),
           pin,
           scrub: 1,
           anticipatePin: 1,
@@ -322,10 +334,24 @@ export function useOriginAssemblyTimeline(
               (timelineTime - (ORIGIN_BLACKOUT_TIME - 0.12)) / 0.9,
             );
             const bloomFalloff = blackoutProgress > 0.74 ? Math.max(0.08, 1 - (blackoutProgress - 0.74) / 0.26) : 1;
+            const galleryProgress = gsap.utils.clamp(
+              0,
+              1,
+              (timelineTime - ORIGIN_GALLERY_START_TIME) / ORIGIN_GALLERY_DURATION,
+            );
 
             root.style.setProperty("--assembly-progress", assemblyProgress.toFixed(3));
             renderClockFrame(assemblyProgress);
             renderBloomFrame(blackoutProgress * bloomFalloff);
+            if (galleryCount) {
+              const galleryIndex = Math.min(
+                ORIGIN_GALLERY_FRAME_COUNT,
+                Math.round(galleryProgress * (ORIGIN_GALLERY_FRAME_COUNT - 1)) + 1,
+              );
+              galleryCount.textContent = `${String(galleryIndex).padStart(2, "0")} / ${String(
+                ORIGIN_GALLERY_FRAME_COUNT,
+              ).padStart(2, "0")}`;
+            }
             if (progressLabel) {
               progressLabel.textContent = `${Math.round(assemblyProgress * 100)
                 .toString()
@@ -523,6 +549,33 @@ export function useOriginAssemblyTimeline(
           root.querySelectorAll(".origin-glsl-hills-stage"),
           { autoAlpha: 0.82, duration: 0.56, ease: "power2.inOut" },
           "origin-blackout+=0.72",
+        )
+        .to(
+          root.querySelectorAll(".origin-gallery"),
+          { autoAlpha: 1, duration: 0.5, ease: "power2.out" },
+          "origin-blackout+=0.84",
+        )
+        .to(
+          root.querySelectorAll(".origin-gallery-track"),
+          {
+            x: () =>
+              galleryTrack
+                ? Math.min(0, window.innerWidth - galleryTrack.scrollWidth)
+                : 0,
+            duration: ORIGIN_GALLERY_DURATION,
+            ease: "none",
+          },
+          "origin-blackout+=0.86",
+        )
+        .to(
+          root.querySelectorAll(".origin-gallery-card"),
+          {
+            autoAlpha: 1,
+            duration: 0.72,
+            scale: 1,
+            stagger: 0.08,
+          },
+          "origin-blackout+=0.9",
         )
         .to(
           root.querySelectorAll(".origin-blackout-veil"),

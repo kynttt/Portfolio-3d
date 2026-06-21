@@ -287,7 +287,7 @@ try {
         if (origin) {
           window.scrollTo(
             0,
-            origin.getBoundingClientRect().top + window.scrollY + window.innerHeight * 5.9,
+            origin.getBoundingClientRect().top + window.scrollY + window.innerHeight * 7.9,
           );
         }
       });
@@ -299,6 +299,10 @@ try {
         const bloom = document.querySelector(".origin-bloom-canvas");
         const hillsStage = document.querySelector(".origin-glsl-hills-stage");
         const hillsCanvas = document.querySelector(".origin-glsl-hills-stage canvas");
+        const gallery = document.querySelector(".origin-gallery");
+        const galleryTrack = document.querySelector(".origin-gallery-track");
+        const galleryCards = document.querySelectorAll(".origin-gallery-card");
+        const galleryCount = document.querySelector(".origin-gallery-count");
         const blackoutStage = document.querySelector(".origin-blackout-stage");
         const stage = document.querySelector(".origin-exit-stage");
         const grid = document.querySelector(".origin-grid");
@@ -306,11 +310,23 @@ try {
         const style = veil ? window.getComputedStyle(veil) : null;
         const plateStyle = plate ? window.getComputedStyle(plate) : null;
         const hillsStyle = hillsStage ? window.getComputedStyle(hillsStage) : null;
+        const galleryStyle = gallery ? window.getComputedStyle(gallery) : null;
+        const galleryTrackStyle = galleryTrack ? window.getComputedStyle(galleryTrack) : null;
         const blackoutStageStyle = blackoutStage ? window.getComputedStyle(blackoutStage) : null;
         const stageStyle = stage ? window.getComputedStyle(stage) : null;
         const gridStyle = grid ? window.getComputedStyle(grid) : null;
         const captionStyle = caption ? window.getComputedStyle(caption) : null;
         const hillsRect = hillsCanvas?.getBoundingClientRect();
+        const galleryViewportRect = document
+          .querySelector(".origin-gallery-viewport")
+          ?.getBoundingClientRect();
+        const galleryCardRects = Array.from(galleryCards, (card) =>
+          card.getBoundingClientRect(),
+        );
+        const galleryCardTops = galleryCardRects.map((rect) => rect.top);
+        const lastGalleryCardRect = galleryCardRects.at(-1);
+        const galleryTrackWidth = galleryTrack?.scrollWidth ?? 0;
+        const galleryCardWidth = galleryCardRects[0]?.width ?? 0;
 
         return {
           hasVeil: Boolean(veil),
@@ -318,9 +334,26 @@ try {
           hasBloom: Boolean(bloom),
           hasHillsStage: Boolean(hillsStage),
           hasHillsCanvas: Boolean(hillsCanvas),
+          hasGallery: Boolean(gallery),
+          hasGalleryTrack: Boolean(galleryTrack),
+          galleryCardCount: galleryCards.length,
+          galleryCountText: galleryCount?.textContent?.trim() ?? "",
           veilOpacity: style ? Number(style.opacity) : 0,
           plateOpacity: plateStyle ? Number(plateStyle.opacity) : 0,
           hillsOpacity: hillsStyle ? Number(hillsStyle.opacity) : 0,
+          galleryOpacity: galleryStyle ? Number(galleryStyle.opacity) : 0,
+          galleryTransform: galleryTrackStyle?.transform ?? "none",
+          galleryViewportLeft: galleryViewportRect?.left ?? -1,
+          galleryViewportRight: galleryViewportRect?.right ?? -1,
+          galleryCardTopSpread:
+            galleryCardTops.length > 0
+              ? Math.max(...galleryCardTops) - Math.min(...galleryCardTops)
+              : 9999,
+          galleryTrackWidth,
+          galleryCardWidth,
+          lastGalleryCardCenter: lastGalleryCardRect
+            ? lastGalleryCardRect.left + lastGalleryCardRect.width / 2
+            : -1,
           hillsWidth: hillsRect?.width ?? 0,
           hillsHeight: hillsRect?.height ?? 0,
           stageBackground: stageStyle?.backgroundColor ?? "",
@@ -336,9 +369,21 @@ try {
         !blackoutState.hasBloom ||
         !blackoutState.hasHillsStage ||
         !blackoutState.hasHillsCanvas ||
+        !blackoutState.hasGallery ||
+        !blackoutState.hasGalleryTrack ||
+        blackoutState.galleryCardCount < 4 ||
+        blackoutState.galleryCountText !== "05 / 05" ||
         blackoutState.veilOpacity < 0.82 ||
         blackoutState.plateOpacity < 0.9 ||
         blackoutState.hillsOpacity < 0.55 ||
+        blackoutState.galleryOpacity < 0.45 ||
+        blackoutState.galleryTransform === "none" ||
+        Math.abs(blackoutState.galleryViewportLeft) > 1 ||
+        Math.abs(blackoutState.galleryViewportRight - width) > 1 ||
+        blackoutState.galleryCardTopSpread > 2 ||
+        blackoutState.galleryTrackWidth < width * 3 ||
+        blackoutState.galleryCardWidth < width * 0.4 ||
+        Math.abs(blackoutState.lastGalleryCardCenter - width / 2) > 8 ||
         blackoutState.hillsWidth < width * 0.95 ||
         blackoutState.hillsHeight < height * 0.95 ||
         blackoutState.blackoutStageZIndex <= blackoutState.gridZIndex ||

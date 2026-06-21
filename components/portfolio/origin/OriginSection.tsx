@@ -2,6 +2,7 @@
 
 import { Fragment, useRef } from "react";
 import { CareerMarker } from "@/components/portfolio/origin/CareerMarker";
+import { OriginHillsGallery } from "@/components/portfolio/origin/OriginHillsGallery";
 import { MechanicalAssembly } from "@/components/portfolio/origin/MechanicalAssembly";
 import { OriginEndScene } from "@/components/portfolio/origin/OriginEndScene";
 import { OriginMetadata } from "@/components/portfolio/origin/OriginMetadata";
@@ -89,6 +90,7 @@ export function OriginSection() {
               planeSize={248}
               speed={0.36}
             />
+            <OriginHillsGallery />
           </div>
         </div>
       </div>
