@@ -175,6 +175,12 @@ export function useOriginAssemblyTimeline(
       const bloomCanvas = root.querySelector<HTMLCanvasElement>(".origin-bloom-canvas");
       const galleryTrack = root.querySelector<HTMLElement>(".origin-gallery-track");
       const galleryCount = root.querySelector<HTMLElement>(".origin-gallery-count");
+      const galleryDescription = root.querySelector<HTMLElement>(
+        ".origin-gallery-description",
+      );
+      const galleryCards = gsap.utils.toArray<HTMLElement>(
+        root.querySelectorAll(".origin-gallery-card"),
+      );
       const hero = document.querySelector<HTMLElement>(".hero-frame");
 
       if (!pin || !sharedPlane || !hoverPlane) {
@@ -351,6 +357,10 @@ export function useOriginAssemblyTimeline(
               galleryCount.textContent = `${String(galleryIndex).padStart(2, "0")} / ${String(
                 ORIGIN_GALLERY_FRAME_COUNT,
               ).padStart(2, "0")}`;
+              if (galleryDescription) {
+                galleryDescription.textContent =
+                  galleryCards[galleryIndex - 1]?.dataset.description ?? "";
+              }
             }
             if (progressLabel) {
               progressLabel.textContent = `${Math.round(assemblyProgress * 100)

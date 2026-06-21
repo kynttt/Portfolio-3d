@@ -303,6 +303,9 @@ try {
         const galleryTrack = document.querySelector(".origin-gallery-track");
         const galleryCards = document.querySelectorAll(".origin-gallery-card");
         const galleryCount = document.querySelector(".origin-gallery-count");
+        const galleryDescription = document.querySelector(
+          ".origin-gallery-description",
+        );
         const blackoutStage = document.querySelector(".origin-blackout-stage");
         const stage = document.querySelector(".origin-exit-stage");
         const grid = document.querySelector(".origin-grid");
@@ -338,6 +341,8 @@ try {
           hasGalleryTrack: Boolean(galleryTrack),
           galleryCardCount: galleryCards.length,
           galleryCountText: galleryCount?.textContent?.trim() ?? "",
+          galleryDescriptionText:
+            galleryDescription?.textContent?.trim() ?? "",
           veilOpacity: style ? Number(style.opacity) : 0,
           plateOpacity: plateStyle ? Number(plateStyle.opacity) : 0,
           hillsOpacity: hillsStyle ? Number(hillsStyle.opacity) : 0,
@@ -373,6 +378,8 @@ try {
         !blackoutState.hasGalleryTrack ||
         blackoutState.galleryCardCount < 4 ||
         blackoutState.galleryCountText !== "05 / 05" ||
+        blackoutState.galleryDescriptionText !==
+          "Contour Echo maps layered systems into one continuous terrain." ||
         blackoutState.veilOpacity < 0.82 ||
         blackoutState.plateOpacity < 0.9 ||
         blackoutState.hillsOpacity < 0.55 ||
