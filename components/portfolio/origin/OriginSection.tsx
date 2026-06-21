@@ -92,6 +92,19 @@ export function OriginSection() {
             />
             <OriginHillsGallery />
           </div>
+          <div
+            className="origin-light-outro"
+            role="status"
+            aria-label="Selected Systems chapter complete"
+          >
+            <div className="origin-light-outro-wash" aria-hidden="true" />
+            <div className="origin-light-outro-marker">
+              <span>04 / Selected Systems</span>
+              <p>Systems documented. Returning to the field.</p>
+              <div className="origin-light-outro-rule" aria-hidden="true" />
+              <small>Chapter complete / Scroll to continue</small>
+            </div>
+          </div>
         </div>
       </div>
     </section>

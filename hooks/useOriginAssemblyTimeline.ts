@@ -10,6 +10,7 @@ const ORIGIN_END_SCENE_TIME = 6.65;
 const ORIGIN_BLACKOUT_TIME = 7.85;
 const ORIGIN_GALLERY_START_TIME = ORIGIN_BLACKOUT_TIME + 0.86;
 const ORIGIN_GALLERY_DURATION = 3.2;
+const ORIGIN_LIGHT_OUTRO_TIME = ORIGIN_GALLERY_START_TIME + ORIGIN_GALLERY_DURATION + 0.12;
 const END_SCENE_BASE_ROTATION_X = 24;
 const END_SCENE_BASE_ROTATION_Z = -8;
 const END_SCENE_GRID_SCALE = 0.72;
@@ -318,13 +319,27 @@ export function useOriginAssemblyTimeline(
         autoAlpha: 0,
         scale: 0.96,
       });
+      gsap.set(root.querySelectorAll(".origin-light-outro"), {
+        autoAlpha: 0,
+      });
+      gsap.set(root.querySelectorAll(".origin-light-outro-wash"), {
+        yPercent: 102,
+      });
+      gsap.set(root.querySelectorAll(".origin-light-outro-marker"), {
+        autoAlpha: 0,
+        y: 24,
+      });
+      gsap.set(root.querySelectorAll(".origin-light-outro-rule"), {
+        scaleX: 0,
+        transformOrigin: "0% 50%",
+      });
 
       const timeline = gsap.timeline({
         defaults: { ease: "power2.out" },
         scrollTrigger: {
           trigger: pin,
           start: "top top",
-          end: () => (window.innerWidth >= 1180 ? "+=800%" : "+=600%"),
+          end: () => (window.innerWidth >= 1180 ? "+=920%" : "+=700%"),
           pin,
           scrub: 1,
           anticipatePin: 1,
@@ -599,7 +614,44 @@ export function useOriginAssemblyTimeline(
           { autoAlpha: 0.86, duration: 0.46, ease: "power2.out" },
           "origin-blackout+=0.78",
         )
-        .to({}, { duration: 0.18 });
+        .addLabel("origin-light-outro", ORIGIN_LIGHT_OUTRO_TIME)
+        .to(
+          root.querySelectorAll(".origin-light-outro"),
+          { autoAlpha: 1, duration: 0.01 },
+          "origin-light-outro",
+        )
+        .to(
+          root.querySelectorAll(".origin-light-outro-wash"),
+          { yPercent: 0, duration: 1.28, ease: "power3.inOut" },
+          "origin-light-outro",
+        )
+        .to(
+          root.querySelectorAll(".origin-gallery"),
+          {
+            autoAlpha: 0,
+            duration: 0.74,
+            ease: "power2.in",
+            scale: 0.96,
+            y: -32,
+          },
+          "origin-light-outro+=0.08",
+        )
+        .to(
+          root.querySelectorAll(".origin-glsl-hills"),
+          { autoAlpha: 0, duration: 0.92, ease: "power2.inOut" },
+          "origin-light-outro+=0.18",
+        )
+        .to(
+          root.querySelectorAll(".origin-light-outro-marker"),
+          { autoAlpha: 1, duration: 0.62, ease: "power3.out", y: 0 },
+          "origin-light-outro+=0.72",
+        )
+        .to(
+          root.querySelectorAll(".origin-light-outro-rule"),
+          { duration: 0.72, ease: "power3.out", scaleX: 1 },
+          "origin-light-outro+=0.86",
+        )
+        .to({}, { duration: 0.42 });
 
       root.dataset.endSceneActive = "false";
       sharedPlaneToRest();

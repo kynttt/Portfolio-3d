@@ -287,7 +287,7 @@ try {
         if (origin) {
           window.scrollTo(
             0,
-            origin.getBoundingClientRect().top + window.scrollY + window.innerHeight * 7.9,
+            origin.getBoundingClientRect().top + window.scrollY + window.innerHeight * 7.95,
           );
         }
       });
@@ -424,6 +424,58 @@ try {
       ) {
         throw new Error(
           `${name}: blackout end state did not take over cleanly: ${JSON.stringify(blackoutState)}`,
+        );
+      }
+
+      await page.evaluate(() => {
+        const origin = document.querySelector(".origin-section");
+        if (origin) {
+          window.scrollTo(
+            0,
+            origin.getBoundingClientRect().top + window.scrollY + window.innerHeight * 9.15,
+          );
+        }
+      });
+      await page.waitForTimeout(900);
+
+      const lightOutroState = await page.evaluate(() => {
+        const outro = document.querySelector(".origin-light-outro");
+        const wash = document.querySelector(".origin-light-outro-wash");
+        const marker = document.querySelector(".origin-light-outro-marker");
+        const gallery = document.querySelector(".origin-gallery");
+        const hills = document.querySelector(".origin-glsl-hills");
+        const outroStyle = outro ? window.getComputedStyle(outro) : null;
+        const washStyle = wash ? window.getComputedStyle(wash) : null;
+        const markerStyle = marker ? window.getComputedStyle(marker) : null;
+        const galleryStyle = gallery ? window.getComputedStyle(gallery) : null;
+        const hillsStyle = hills ? window.getComputedStyle(hills) : null;
+
+        return {
+          hasOutro: Boolean(outro),
+          hasWash: Boolean(wash),
+          hasMarker: Boolean(marker),
+          outroOpacity: outroStyle ? Number(outroStyle.opacity) : 0,
+          washTransform: washStyle?.transform ?? "none",
+          markerOpacity: markerStyle ? Number(markerStyle.opacity) : 0,
+          galleryOpacity: galleryStyle ? Number(galleryStyle.opacity) : 1,
+          hillsOpacity: hillsStyle ? Number(hillsStyle.opacity) : 1,
+          backgroundColor: washStyle?.backgroundColor ?? "",
+        };
+      });
+
+      if (
+        !lightOutroState.hasOutro ||
+        !lightOutroState.hasWash ||
+        !lightOutroState.hasMarker ||
+        lightOutroState.outroOpacity < 0.95 ||
+        lightOutroState.washTransform === "none" ||
+        lightOutroState.markerOpacity < 0.9 ||
+        lightOutroState.galleryOpacity > 0.08 ||
+        lightOutroState.hillsOpacity > 0.12 ||
+        !lightOutroState.backgroundColor.includes("244, 242, 236")
+      ) {
+        throw new Error(
+          `${name}: light-mode outro did not resolve cleanly: ${JSON.stringify(lightOutroState)}`,
         );
       }
     }
