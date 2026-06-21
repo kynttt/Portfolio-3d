@@ -76,11 +76,11 @@ export function OriginSection() {
             <OriginEndScene />
           </div>
         </div>
-        <div className="origin-blackout-stage" aria-hidden="true">
-          <canvas className="origin-bloom-canvas" />
-          <div className="origin-blackout-atmosphere" />
-          <div className="origin-blackout-veil" />
-          <div className="origin-blackout-plate" />
+        <div className="origin-blackout-stage">
+          <canvas className="origin-bloom-canvas" aria-hidden="true" />
+          <div className="origin-blackout-atmosphere" aria-hidden="true" />
+          <div className="origin-blackout-veil" aria-hidden="true" />
+          <div className="origin-blackout-plate" aria-hidden="true" />
           <div className="origin-glsl-hills-stage">
             <GLSLHills
               className="origin-glsl-hills"

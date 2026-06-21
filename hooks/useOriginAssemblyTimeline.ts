@@ -10,7 +10,6 @@ const ORIGIN_END_SCENE_TIME = 6.65;
 const ORIGIN_BLACKOUT_TIME = 7.85;
 const ORIGIN_GALLERY_START_TIME = ORIGIN_BLACKOUT_TIME + 0.86;
 const ORIGIN_GALLERY_DURATION = 3.2;
-const ORIGIN_GALLERY_FRAME_COUNT = 5;
 const END_SCENE_BASE_ROTATION_X = 24;
 const END_SCENE_BASE_ROTATION_Z = -8;
 const END_SCENE_GRID_SCALE = 0.72;
@@ -177,6 +176,9 @@ export function useOriginAssemblyTimeline(
       const galleryCount = root.querySelector<HTMLElement>(".origin-gallery-count");
       const galleryDescription = root.querySelector<HTMLElement>(
         ".origin-gallery-description",
+      );
+      const galleryFocusMeta = root.querySelector<HTMLElement>(
+        ".origin-gallery-focus-meta",
       );
       const galleryCards = gsap.utils.toArray<HTMLElement>(
         root.querySelectorAll(".origin-gallery-card"),
@@ -350,16 +352,21 @@ export function useOriginAssemblyTimeline(
             renderClockFrame(assemblyProgress);
             renderBloomFrame(blackoutProgress * bloomFalloff);
             if (galleryCount) {
+              const galleryFrameCount = galleryCards.length;
               const galleryIndex = Math.min(
-                ORIGIN_GALLERY_FRAME_COUNT,
-                Math.round(galleryProgress * (ORIGIN_GALLERY_FRAME_COUNT - 1)) + 1,
+                galleryFrameCount,
+                Math.round(galleryProgress * (galleryFrameCount - 1)) + 1,
               );
               galleryCount.textContent = `${String(galleryIndex).padStart(2, "0")} / ${String(
-                ORIGIN_GALLERY_FRAME_COUNT,
+                galleryFrameCount,
               ).padStart(2, "0")}`;
               if (galleryDescription) {
                 galleryDescription.textContent =
                   galleryCards[galleryIndex - 1]?.dataset.description ?? "";
+              }
+              if (galleryFocusMeta) {
+                galleryFocusMeta.textContent =
+                  galleryCards[galleryIndex - 1]?.dataset.meta ?? "";
               }
             }
             if (progressLabel) {

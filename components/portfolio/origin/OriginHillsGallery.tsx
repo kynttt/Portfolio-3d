@@ -1,74 +1,61 @@
 "use client";
 
-const galleryFrames = [
-  {
-    id: "signal-01",
-    label: "Signal 01",
-    title: "Terrain Frame",
-    meta: "Placeholder / 01",
-    description: "Terrain Frame studies structure, depth, and engineered movement.",
-  },
-  {
-    id: "signal-02",
-    label: "Signal 02",
-    title: "Motion Study",
-    meta: "Placeholder / 02",
-    description: "Motion Study explores precise transitions across digital systems.",
-  },
-  {
-    id: "signal-03",
-    label: "Signal 03",
-    title: "Field Capture",
-    meta: "Placeholder / 03",
-    description: "Field Capture translates operational detail into a visual record.",
-  },
-  {
-    id: "signal-04",
-    label: "Signal 04",
-    title: "Depth Slice",
-    meta: "Placeholder / 04",
-    description: "Depth Slice reveals the technical layers beneath each interface.",
-  },
-  {
-    id: "signal-05",
-    label: "Signal 05",
-    title: "Contour Echo",
-    meta: "Placeholder / 05",
-    description: "Contour Echo maps layered systems into one continuous terrain.",
-  },
-];
+import { SelectedSystemVisual } from "@/components/portfolio/origin/SelectedSystemVisual";
+import { selectedSystemsContent } from "@/data/selected-systems-content";
 
 export function OriginHillsGallery() {
+  const firstSystem = selectedSystemsContent.systems[0];
+
   return (
-    <div className="origin-gallery" aria-hidden="true">
+    <div
+      className="origin-gallery"
+      role="region"
+      aria-label={selectedSystemsContent.sectionLabel}
+    >
       <div className="origin-gallery-intro">
         <div>
-          <span className="origin-gallery-kicker">Selected Systems</span>
+          <span className="origin-gallery-kicker">
+            {selectedSystemsContent.chapter} / {selectedSystemsContent.sectionLabel}
+          </span>
           <p className="origin-gallery-description">
-            {galleryFrames[0].description}
+            {firstSystem.dynamicDescription}
           </p>
+          <span className="origin-gallery-focus-meta">
+            {firstSystem.category.toUpperCase()}
+          </span>
         </div>
-        <span className="origin-gallery-count">01 / 05</span>
+        <span className="origin-gallery-count">
+          01 / {String(selectedSystemsContent.systems.length).padStart(2, "0")}
+        </span>
       </div>
 
       <div className="origin-gallery-viewport">
         <div className="origin-gallery-track">
-          {galleryFrames.map((frame, index) => (
+          {selectedSystemsContent.systems.map((system) => (
             <article
               className="origin-gallery-card"
-              data-description={frame.description}
-              key={frame.id}
+              data-description={system.dynamicDescription}
+              data-meta={system.category.toUpperCase()}
+              key={system.id}
             >
               <div className="origin-gallery-frame">
-                <div className="origin-gallery-image">
-                  <span>{frame.label}</span>
-                </div>
+                <SelectedSystemVisual
+                  systemId={system.id}
+                  title={system.title}
+                  visualLabel={system.visualLabel}
+                  imageSrc={system.imageSrc}
+                  imageAlt={system.imageAlt}
+                  placeholderVariant={system.placeholderVariant}
+                />
                 <div className="origin-gallery-caption">
-                  <p>{frame.title}</p>
+                  <div>
+                    <p className="origin-gallery-card-title">{system.title}</p>
+                    <small>{system.shortCaption}</small>
+                  </div>
                   <span>
-                    {frame.meta}
-                    {" / "}
-                    {String(index + 1).padStart(2, "0")}
+                    {system.footerLeft}
+                    <br />
+                    {system.footerRight}
                   </span>
                 </div>
               </div>

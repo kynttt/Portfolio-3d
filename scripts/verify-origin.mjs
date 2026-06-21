@@ -306,6 +306,19 @@ try {
         const galleryDescription = document.querySelector(
           ".origin-gallery-description",
         );
+        const galleryFocusMeta = document.querySelector(
+          ".origin-gallery-focus-meta",
+        );
+        const galleryTitles = Array.from(
+          document.querySelectorAll(".origin-gallery-card-title"),
+          (element) => element.textContent?.trim() ?? "",
+        );
+        const placeholderVisuals = document.querySelectorAll(
+          ".selected-system-placeholder",
+        );
+        const galleryImages = document.querySelectorAll(
+          ".selected-system-image",
+        );
         const blackoutStage = document.querySelector(".origin-blackout-stage");
         const stage = document.querySelector(".origin-exit-stage");
         const grid = document.querySelector(".origin-grid");
@@ -339,10 +352,17 @@ try {
           hasHillsCanvas: Boolean(hillsCanvas),
           hasGallery: Boolean(gallery),
           hasGalleryTrack: Boolean(galleryTrack),
+          galleryHiddenByAncestor: Boolean(
+            gallery?.closest('[aria-hidden="true"]'),
+          ),
           galleryCardCount: galleryCards.length,
           galleryCountText: galleryCount?.textContent?.trim() ?? "",
           galleryDescriptionText:
             galleryDescription?.textContent?.trim() ?? "",
+          galleryFocusMetaText: galleryFocusMeta?.textContent?.trim() ?? "",
+          galleryTitles,
+          placeholderVisualCount: placeholderVisuals.length,
+          galleryImageCount: galleryImages.length,
           veilOpacity: style ? Number(style.opacity) : 0,
           plateOpacity: plateStyle ? Number(plateStyle.opacity) : 0,
           hillsOpacity: hillsStyle ? Number(hillsStyle.opacity) : 0,
@@ -376,10 +396,16 @@ try {
         !blackoutState.hasHillsCanvas ||
         !blackoutState.hasGallery ||
         !blackoutState.hasGalleryTrack ||
-        blackoutState.galleryCardCount < 4 ||
-        blackoutState.galleryCountText !== "05 / 05" ||
+        blackoutState.galleryHiddenByAncestor ||
+        blackoutState.galleryCardCount !== 4 ||
+        blackoutState.galleryCountText !== "04 / 04" ||
         blackoutState.galleryDescriptionText !==
-          "Contour Echo maps layered systems into one continuous terrain." ||
+          "Applied AI experiments exploring document workflows, resume screening, legal research assistance, retrieval systems, and local-model integrations." ||
+        blackoutState.galleryFocusMetaText !== "AI / PRODUCT EXPERIMENTS" ||
+        JSON.stringify(blackoutState.galleryTitles) !==
+          JSON.stringify(["GENIUS", "FIELD SYSTEMS", "POSEIDON", "AI PRODUCT LAB"]) ||
+        blackoutState.placeholderVisualCount !== 4 ||
+        blackoutState.galleryImageCount !== 0 ||
         blackoutState.veilOpacity < 0.82 ||
         blackoutState.plateOpacity < 0.9 ||
         blackoutState.hillsOpacity < 0.55 ||
@@ -388,7 +414,7 @@ try {
         Math.abs(blackoutState.galleryViewportLeft) > 1 ||
         Math.abs(blackoutState.galleryViewportRight - width) > 1 ||
         blackoutState.galleryCardTopSpread > 2 ||
-        blackoutState.galleryTrackWidth < width * 3 ||
+        blackoutState.galleryTrackWidth < width * 2.4 ||
         blackoutState.galleryCardWidth < width * 0.4 ||
         Math.abs(blackoutState.lastGalleryCardCenter - width / 2) > 8 ||
         blackoutState.hillsWidth < width * 0.95 ||
