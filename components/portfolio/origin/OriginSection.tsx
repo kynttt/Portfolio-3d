@@ -5,6 +5,7 @@ import { CareerMarker } from "@/components/portfolio/origin/CareerMarker";
 import { OriginHillsGallery } from "@/components/portfolio/origin/OriginHillsGallery";
 import { MechanicalAssembly } from "@/components/portfolio/origin/MechanicalAssembly";
 import { OriginEndScene } from "@/components/portfolio/origin/OriginEndScene";
+import { OriginLightOutro } from "@/components/portfolio/origin/OriginLightOutro";
 import { OriginMetadata } from "@/components/portfolio/origin/OriginMetadata";
 import { GLSLHills } from "@/components/ui/glsl-hills";
 import { careerMarkers, originCopy } from "@/data/origin-content";
@@ -92,19 +93,7 @@ export function OriginSection() {
             />
             <OriginHillsGallery />
           </div>
-          <div
-            className="origin-light-outro"
-            role="status"
-            aria-label="Selected Systems chapter complete"
-          >
-            <div className="origin-light-outro-wash" aria-hidden="true" />
-            <div className="origin-light-outro-marker">
-              <span>04 / Selected Systems</span>
-              <p>Systems documented. Returning to the field.</p>
-              <div className="origin-light-outro-rule" aria-hidden="true" />
-              <small>Chapter complete / Scroll to continue</small>
-            </div>
-          </div>
+          <OriginLightOutro />
         </div>
       </div>
     </section>

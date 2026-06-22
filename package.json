@@ -9,7 +9,9 @@
     "verify:hero": "node scripts/verify-hero.mjs",
     "verify:visual": "node scripts/verify-visual.mjs",
     "verify:interactions": "node scripts/verify-interactions.mjs",
-    "verify:origin": "node scripts/verify-origin.mjs"
+    "verify:origin": "node scripts/verify-origin.mjs",
+    "verify:outro-ripple": "node scripts/verify-outro-ripple-mask.mjs",
+    "verify:outro-layout": "node scripts/verify-outro-layout.mjs"
   },
   "dependencies": {
     "@gsap/react": "^2.1.2",
@@ -19,6 +21,7 @@
     "next": "^15.1.2",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
+    "shaders": "^2.5.131",
     "three": "^0.184.0"
   },
   "devDependencies": {

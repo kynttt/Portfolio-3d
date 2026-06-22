@@ -329,6 +329,21 @@ export function useOriginAssemblyTimeline(
         autoAlpha: 0,
         y: 24,
       });
+      gsap.set(root.querySelectorAll(".origin-outro-portrait-stage"), {
+        autoAlpha: 0,
+        scale: 0.9,
+        y: 42,
+        transformOrigin: "50% 60%",
+      });
+      gsap.set(root.querySelectorAll(".origin-outro-portrait-stage"), {
+        "--outro-reveal-size": "0%",
+      });
+      gsap.set(root.querySelectorAll(".origin-outro-reticle"), {
+        opacity: 0,
+      });
+      gsap.set(root.querySelectorAll(".origin-outro-axis"), {
+        autoAlpha: 0,
+      });
       gsap.set(root.querySelectorAll(".origin-light-outro-rule"), {
         scaleX: 0,
         transformOrigin: "0% 50%",
@@ -642,16 +657,32 @@ export function useOriginAssemblyTimeline(
           "origin-light-outro+=0.18",
         )
         .to(
+          root.querySelectorAll(".origin-outro-portrait-stage"),
+          {
+            autoAlpha: 1,
+            duration: 0.56,
+            ease: "power3.out",
+            scale: 1,
+            y: 0,
+          },
+          "origin-light-outro+=1.3",
+        )
+        .to(
+          root.querySelectorAll(".origin-outro-axis"),
+          { autoAlpha: 1, duration: 0.48, ease: "power2.out" },
+          "origin-light-outro+=1.18",
+        )
+        .to(
           root.querySelectorAll(".origin-light-outro-marker"),
           { autoAlpha: 1, duration: 0.62, ease: "power3.out", y: 0 },
-          "origin-light-outro+=0.72",
+          "origin-light-outro+=1.06",
         )
         .to(
           root.querySelectorAll(".origin-light-outro-rule"),
           { duration: 0.72, ease: "power3.out", scaleX: 1 },
-          "origin-light-outro+=0.86",
+          "origin-light-outro+=1.2",
         )
-        .to({}, { duration: 0.42 });
+        .to({}, { duration: 0.46 });
 
       root.dataset.endSceneActive = "false";
       sharedPlaneToRest();

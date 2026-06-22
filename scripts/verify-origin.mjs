@@ -39,7 +39,7 @@ try {
     }
 
     await page.evaluate(() => window.scrollTo(0, window.innerHeight * 0.55));
-    await page.waitForTimeout(800);
+    await page.waitForTimeout(1400);
 
     const sequenceFrame = await page.locator(".hero-backdrop-object").evaluate((element) => {
       return Number(element.dataset.frame ?? "0");
@@ -287,7 +287,7 @@ try {
         if (origin) {
           window.scrollTo(
             0,
-            origin.getBoundingClientRect().top + window.scrollY + window.innerHeight * 7.95,
+            origin.getBoundingClientRect().top + window.scrollY + window.innerHeight * 7.7,
           );
         }
       });
@@ -442,21 +442,52 @@ try {
         const outro = document.querySelector(".origin-light-outro");
         const wash = document.querySelector(".origin-light-outro-wash");
         const marker = document.querySelector(".origin-light-outro-marker");
+        const shaderCanvas = document.querySelector(".origin-outro-shader");
+        const portraitStage = document.querySelector(
+          ".origin-outro-portrait-stage",
+        );
+        const copy = document.querySelector(".origin-light-outro-copy");
         const gallery = document.querySelector(".origin-gallery");
         const hills = document.querySelector(".origin-glsl-hills");
         const outroStyle = outro ? window.getComputedStyle(outro) : null;
         const washStyle = wash ? window.getComputedStyle(wash) : null;
         const markerStyle = marker ? window.getComputedStyle(marker) : null;
+        const copyStyle = copy ? window.getComputedStyle(copy) : null;
         const galleryStyle = gallery ? window.getComputedStyle(gallery) : null;
         const hillsStyle = hills ? window.getComputedStyle(hills) : null;
+        const portraitRect = portraitStage?.getBoundingClientRect();
+        const shaderRect = shaderCanvas?.getBoundingClientRect();
 
         return {
           hasOutro: Boolean(outro),
           hasWash: Boolean(wash),
           hasMarker: Boolean(marker),
+          hasShaderCanvas: Boolean(shaderCanvas),
           outroOpacity: outroStyle ? Number(outroStyle.opacity) : 0,
           washTransform: washStyle?.transform ?? "none",
           markerOpacity: markerStyle ? Number(markerStyle.opacity) : 0,
+          shaderMixFactor: Number(
+            shaderCanvas?.getAttribute("data-mix-factor") ?? "-1",
+          ),
+          shaderMouseX: Number(
+            shaderCanvas?.getAttribute("data-mouse-x") ?? "-1",
+          ),
+          shaderMouseY: Number(
+            shaderCanvas?.getAttribute("data-mouse-y") ?? "-1",
+          ),
+          copyPosition: copyStyle?.position ?? "",
+          portraitWidth: portraitRect?.width ?? 0,
+          portraitHeight: portraitRect?.height ?? 0,
+          shaderWidth: shaderRect?.width ?? 0,
+          shaderHeight: shaderRect?.height ?? 0,
+          portraitCenterDelta: portraitRect
+            ? Math.abs(
+                portraitRect.left +
+                  portraitRect.width / 2 -
+                  window.innerWidth / 2,
+              )
+            : 9999,
+          portraitBottom: portraitRect?.bottom ?? -1,
           galleryOpacity: galleryStyle ? Number(galleryStyle.opacity) : 1,
           hillsOpacity: hillsStyle ? Number(hillsStyle.opacity) : 1,
           backgroundColor: washStyle?.backgroundColor ?? "",
@@ -467,15 +498,64 @@ try {
         !lightOutroState.hasOutro ||
         !lightOutroState.hasWash ||
         !lightOutroState.hasMarker ||
+        !lightOutroState.hasShaderCanvas ||
         lightOutroState.outroOpacity < 0.95 ||
         lightOutroState.washTransform === "none" ||
         lightOutroState.markerOpacity < 0.9 ||
+        lightOutroState.shaderMixFactor > 0.02 ||
+        lightOutroState.shaderMouseX < 0 ||
+        lightOutroState.shaderMouseY < 0 ||
+        lightOutroState.copyPosition !== "absolute" ||
+        lightOutroState.portraitWidth < width * 0.24 ||
+        Math.abs(lightOutroState.portraitWidth - lightOutroState.shaderWidth) >
+          1 ||
+        Math.abs(
+          lightOutroState.portraitHeight - lightOutroState.shaderHeight,
+        ) > 1 ||
+        lightOutroState.portraitCenterDelta > 4 ||
+        Math.abs(lightOutroState.portraitBottom - height) > 4 ||
         lightOutroState.galleryOpacity > 0.08 ||
         lightOutroState.hillsOpacity > 0.12 ||
         !lightOutroState.backgroundColor.includes("244, 242, 236")
       ) {
         throw new Error(
           `${name}: light-mode outro did not resolve cleanly: ${JSON.stringify(lightOutroState)}`,
+        );
+      }
+
+      const portraitStage = page.locator(".origin-outro-portrait-stage");
+      const portraitStageBox = await portraitStage.boundingBox();
+      if (!portraitStageBox) {
+        throw new Error(`${name}: portrait reveal stage has no measurable bounds`);
+      }
+
+      await page.mouse.move(
+        portraitStageBox.x + portraitStageBox.width * 0.32,
+        portraitStageBox.y + portraitStageBox.height * 0.3,
+      );
+      await page.waitForTimeout(650);
+
+      const hoveredRevealState = await page.evaluate(() => {
+        const canvas = document.querySelector(".origin-outro-shader");
+
+        return {
+          mixFactor: Number(
+            canvas?.getAttribute("data-mix-factor") ?? "-1",
+          ),
+          mouseX: Number(canvas?.getAttribute("data-mouse-x") ?? "-1"),
+          mouseY: Number(canvas?.getAttribute("data-mouse-y") ?? "-1"),
+          rippleCount: Number(canvas?.getAttribute("data-ripple-count") ?? "-1"),
+        };
+      });
+
+      if (
+        hoveredRevealState.mixFactor < 0.25 ||
+        Math.abs(hoveredRevealState.mouseX - 0.32) > 0.08 ||
+        Math.abs(hoveredRevealState.mouseY - 0.7) > 0.08 ||
+        hoveredRevealState.rippleCount < 1
+      ) {
+        throw new Error(
+          `${name}: pointer-driven skeleton reveal did not respond: ${JSON.stringify(hoveredRevealState)}`,
         );
       }
     }
@@ -492,3 +572,6 @@ try {
 } finally {
   await browser.close();
 }
+
+
+
