@@ -21,7 +21,10 @@ export function CharacterSkeletonReveal({
 
       if (!root || !enabled) {
         if (root) {
-          gsap.set(root, { "--character-reveal-opacity": 0 });
+          gsap.set(root, {
+            "--character-reveal-opacity": 0,
+            clearProps: "transform,transformPerspective,willChange",
+          });
         }
         return;
       }
@@ -45,8 +48,11 @@ export function CharacterSkeletonReveal({
 
       const updatePosition = (event: PointerEvent) => {
         const rect = root.getBoundingClientRect();
-        xTo(event.clientX - rect.left);
-        yTo(event.clientY - rect.top);
+        const localX = event.clientX - rect.left;
+        const localY = event.clientY - rect.top;
+
+        xTo(localX);
+        yTo(localY);
       };
 
       const onPointerEnter = (event: PointerEvent) => {

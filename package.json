@@ -8,7 +8,10 @@
     "lint": "next lint",
     "verify:hero": "node scripts/verify-hero.mjs",
     "verify:visual": "node scripts/verify-visual.mjs",
-    "verify:interactions": "node scripts/verify-interactions.mjs"
+    "verify:interactions": "node scripts/verify-interactions.mjs",
+    "verify:origin": "node scripts/verify-origin.mjs",
+    "verify:outro-ripple": "node scripts/verify-outro-ripple-mask.mjs",
+    "verify:outro-layout": "node scripts/verify-outro-layout.mjs"
   },
   "dependencies": {
     "@gsap/react": "^2.1.2",
@@ -17,12 +20,15 @@
     "lucide-react": "^0.468.0",
     "next": "^15.1.2",
     "react": "^19.0.0",
-    "react-dom": "^19.0.0"
+    "react-dom": "^19.0.0",
+    "shaders": "^2.5.131",
+    "three": "^0.184.0"
   },
   "devDependencies": {
     "@types/node": "^22.10.2",
     "@types/react": "^19.0.2",
     "@types/react-dom": "^19.0.2",
+    "@types/three": "^0.184.1",
     "autoprefixer": "^10.4.20",
     "eslint": "^9.17.0",
     "eslint-config-next": "^15.1.2",
